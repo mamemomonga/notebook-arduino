@@ -4,7 +4,17 @@
 
 # Debianへのセットアップ
 
+インストール
+
 	$ sudo apt install arduino-mk
+
+ビルド
+
+	$ make
+
+アップロード
+
+	$ make upload
 
 # 点滅
 
