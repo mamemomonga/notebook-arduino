@@ -5,8 +5,7 @@
 # 資料
 
 * [Arduino IDE](https://www.arduino.cc/en/Main/Software)
-* [A Makefile for Arduino Sketches](https://0xdec.gitlab.io/avr-makefile-generator/)
-
+* [Arduino Makefile](https://github.com/sudar/Arduino-Makefile)
 
 # Debianへのセットアップ
 
