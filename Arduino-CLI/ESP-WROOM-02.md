@@ -5,6 +5,22 @@ espressif ESP8266EX を搭載したWiFi対応マイコン。tensilica L106(32Bit
 * [ESP8266 WROOM Series](https://www.espressif.com/en/products/hardware/esp-wroom-02/overview)
 * [秋月電子](http://akizukidenshi.com/catalog/g/gM-09607/)
 * [Arduino core for ESP8266 WiFi chip](https://github.com/esp8266/Arduino)
+* [ESP-WROOM-02 Datasheet](https://www.espressif.com/sites/default/files/documentation/0c-esp-wroom-02_datasheet_en.pdf)
+
+## 配線
+
+![ESP-Blink](../images/ESP-Blink.png)
+![ESP-Blink-Photo](../images/ESP-Blink-Photo.jpg)
+
+* UART Download(プログラミング)モードとFlash Boot(標準)では、2つのピンを設定してリセットすることで切り替わる。プログラミングはUART Downloadモードに切り替えてから行う。ここでは、**Programmingボタンを押しながらRestボタンを押す** プログラミング終了後は **Resetボタンを押す**ことで Flash Bootモードになり起動する。
+
+* RTS,DTR ピンのあるUSB-UARTモジュールの場合、それぞれプルアップしてRST, IO0につなげると自動で切り替えが行えるらしい。[参照](https://github.com/esp8266/Arduino/blob/master/doc/boards.rst)。ここでは手作業で行うようにした。
+
+Pin | UART Download | Flash Boot
+------|---------------|------------
+IO0   | Low           | floating or Pull Up
+IO2   | High          | Pull Up(Not Care?)
+IO15  | Low           | Pull Down(Not Care?)
 
 ## 設定
 
