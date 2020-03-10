@@ -10,6 +10,6 @@ upload:
 	cd .. && arduino-cli upload -p $(ARDUINO_PORT) --fqbn $(ARDUINO_FQBN) $(CURDIR)
 
 serial:
-	@echo "中断は ~."
-	cu -s 115200 -l /dev/ttyUSB0
+	@echo -e 'エスケープ文字は [$'\e[1m ` \e[0m] 中断は [$'\e[1m `. \e[0m]'
+	cu -s 115200 -E '`' -l /dev/ttyUSB0
 
