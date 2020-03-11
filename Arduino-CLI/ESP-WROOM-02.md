@@ -17,10 +17,14 @@ espressif ESP8266EX を搭載したWiFi対応マイコン。tensilica L106(32Bit
 * RTS,DTR ピンのあるUSB-UARTモジュールの場合、それぞれプルアップしてRST, IO0につなげると自動で切り替えが行えるらしい。[参照](https://github.com/esp8266/Arduino/blob/master/doc/boards.rst)。ここでは手作業で行うようにした。
 
 Pin | UART Download | Flash Boot
-------|---------------|------------
-IO0   | Low           | floating or Pull Up
-IO2   | High          | Pull Up(Not Care?)
-IO15  | Low           | Pull Down(Not Care?)
+------|-------------|------------
+IO0   | Low         | High
+IO2   | High        | High
+IO15  | Low         | Low
+
+* IO0は内部プルアップされているので外部プルアップ抵抗不要。
+* IO2は内部プルアップされているので外部プルアップ抵抗不要。これをGNDに落としているとブートしない。
+* IO15は外部でプルダウンしていないとブートしない。
 
 ## 設定
 
