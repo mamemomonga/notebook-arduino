@@ -1,14 +1,7 @@
 #include <ESP8266WiFi.h>
 #include "Config.h"
 
-#include <ESP8266WiFiMulti.h>
-
-#include <ESP8266WebServer.h>
-#include <WiFiClient.h>
-#include <EEPROM.h>
-#include <DNSServer.h>
-
-#include "WiFiSetup.h"
+#include "WiFiConfig.h"
 #include <Wire.h>
 
 void setup() {
@@ -20,20 +13,13 @@ void setup() {
 
 	Serial.println();
 	Serial.println();
-	Serial.println();
 	Serial.println("[SERIAL READY]");
 
-	WiFiSetupClass wifisetup;
-
-	// IO12がLOWなら、EEPROMをクリアする
-	pinMode(12,INPUT_PULLUP);
-	if( digitalRead(12) == LOW ) {
-		wifisetup.clear_eeprom();
-	}
+	WiFiConfigClass wifi_config;
 
 	// IO0(Programボタン)＝WiFi接続中断
 	pinMode(0,INPUT);
-	wifisetup.begin();
+	wifi_config.begin();
 }
 
 void loop() {

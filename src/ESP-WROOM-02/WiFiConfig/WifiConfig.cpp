@@ -1,22 +1,22 @@
-#include "WiFiSetup.h"
+#include "WiFiConfig.h"
 #include "htmldata.h"
 
-WiFiSetupClass::WiFiSetupClass() {
+WiFiConfigClass::WiFiConfigClass() {
 	for(uint8_t i=0;i<4;i++) {
 		strcpy(wci[i].ssid,"");
 		strcpy(wci[i].passphase,"");
 	}
 }
 
-void WiFiSetupClass::begin() {
+void WiFiConfigClass::begin() {
 
 	delay(1000);
-	pinMode(0,INPUT);
+	pinMode(12,INPUT_PULLUP);
 
 	while(1) {
 
-		if( digitalRead(0) == LOW ) {
-			clear_eeprom();
+		if( digitalRead(FORCE_CONFIG_PIN) == LOW ) {
+			_setup_wifi_info();
 		}
 
 		if(_read_config_eeprom()) { // 0:成功
@@ -27,7 +27,7 @@ void WiFiSetupClass::begin() {
 		// 接続開始
 		if(_connect_to_wifi()) { // 0:成功
 			// 接続キャンセルでEEPROM削除
-			clear_eeprom();
+			_clear_eeprom();
 
 		} else {
 			// 接続成功
@@ -39,7 +39,7 @@ void WiFiSetupClass::begin() {
 	delay(1000);
 }
 
-void WiFiSetupClass::_setup_wifi_info() {
+void WiFiConfigClass::_setup_wifi_info() {
 	// CaptivePortal
 	_server_enable=1;
 
@@ -112,7 +112,7 @@ void WiFiSetupClass::_setup_wifi_info() {
 
 }
 
-uint8_t WiFiSetupClass::_connect_to_wifi() {
+uint8_t WiFiConfigClass::_connect_to_wifi() {
 	Serial.printf(" -- CONNECT TO WIFI --\r\n");
 	ESP8266WiFiMulti wifiMulti;
 
@@ -126,7 +126,7 @@ uint8_t WiFiSetupClass::_connect_to_wifi() {
 	Serial.printf("Connecting...\r\n");
 
 	while(wifiMulti.run() != WL_CONNECTED) {
-		if( digitalRead(0) == LOW ) { return 1; }
+		if( digitalRead(FORCE_CONFIG_PIN) == LOW ) { return 1; }
 		digitalWrite(LED_STATUS,LOW);
 		delay(100);
 		digitalWrite(LED_STATUS,HIGH);
@@ -145,7 +145,7 @@ uint8_t WiFiSetupClass::_connect_to_wifi() {
 
 }
 
-uint8_t WiFiSetupClass::_read_config_eeprom() {
+uint8_t WiFiConfigClass::_read_config_eeprom() {
 	Serial.printf("-- Read EEPROM --\r\n");
 	EEPROM.begin(EEPROM_START_ADDR);
 	int addr=0; 
@@ -180,7 +180,7 @@ uint8_t WiFiSetupClass::_read_config_eeprom() {
 	return 0;
 }
 
-void WiFiSetupClass::_write_config_eeprom() {
+void WiFiConfigClass::_write_config_eeprom() {
 	Serial.printf("-- Write EEPROM --\r\n");
 	EEPROM.begin(EEPROM_START_ADDR);
 	int addr=0; 
@@ -204,7 +204,7 @@ void WiFiSetupClass::_write_config_eeprom() {
 	EEPROM.commit();
 }
 
-void WiFiSetupClass::clear_eeprom() {
+void WiFiConfigClass::_clear_eeprom() {
 	Serial.printf("-- Clear EEPROM --\r\n");
 	EEPROM.begin(EEPROM_START_ADDR);
 	int addr=0; 
