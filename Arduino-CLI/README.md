@@ -3,6 +3,7 @@
 * [Arduino Pro/Arduino CLI](https://www.arduino.cc/pro/cli)
 * [Arduino CLI](https://github.com/arduino/arduino-cli)
 * [Arduino CLI Documentation](https://arduino.github.io/arduino-cli/)
+* [Welcome to ESP8266 Arduino Core’s documentation!](https://arduino-esp8266.readthedocs.io/en/latest/)
 
 # セットアップ
 
