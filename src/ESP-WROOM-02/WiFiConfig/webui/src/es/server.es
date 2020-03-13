@@ -12,6 +12,10 @@ app.use(express.static(`${__dirname}/public`))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
+app.get('/api/page', (req, res)=>{
+	res.send('{ "error": 0,"page": "index" }')
+})
+
 app.get('/api/ap/list', (req, res)=>{
 	console.log(req.body)
 	const data={

@@ -70,12 +70,12 @@ __EOS__
 	file_write("$BASEDIR/WebData.cpp",$buf);
 }
 
-say qq{ ------ USAGE ----------------------------------- };
+say qq{ ------------------------------------------------ };
 say qq{  #include "WebData.h"};
 say qq{  ...};
 say qq{  WebDataClass web_data;};
 for(@targets) {
-	say qq{   server.send(200, "text/html", web_data.$_->[0]());};
+	say qq{  server.send(200, "text/html", web_data.$_->[0]());};
 }
 say qq{ ------------------------------------------------ };
 	
