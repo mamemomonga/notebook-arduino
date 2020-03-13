@@ -1,0 +1,32 @@
+{
+  "name": "example",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "gulp": "gulp",
+    "serve": "node var/build/server.js"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.7",
+    "@babel/preset-env": "^7.8.7",
+    "@babel/register": "^7.8.6",
+    "babel-loader": "^8.0.6",
+    "fancy-log": "^1.3.3",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-ejs": "^5.0.0",
+    "gulp-htmlmin": "^5.0.1",
+    "gulp-rename": "^2.0.0",
+    "gulp-sass": "^4.0.2",
+    "rimraf": "^3.0.2",
+    "webpack-stream": "^5.2.1"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cord": "^1.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "querystring": "^0.2.0",
+    "request": "^2.88.2"
+  }
+}

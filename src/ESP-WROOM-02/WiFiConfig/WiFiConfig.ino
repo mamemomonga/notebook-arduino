@@ -8,6 +8,11 @@ void setup() {
 	pinMode(LED_STATUS,OUTPUT);
 	digitalWrite(LED_STATUS,HIGH);
 
+	// スリープモード
+	//wifi_set_sleep_type(NONE_SLEEP_T);
+	//wifi_set_sleep_type(MODEM_SLEEP_T);
+	wifi_set_sleep_type(LIGHT_SLEEP_T);
+
 	Serial.begin(115200);
 	delay(500);
 
@@ -20,13 +25,14 @@ void setup() {
 	// IO0(Programボタン)＝WiFi接続中断
 	pinMode(0,INPUT);
 	wifi_config.begin();
+
 }
 
 void loop() {
 	Serial.println("Running Main");
 	digitalWrite(LED_STATUS,HIGH);
-	delay(500);
+	delay(100);
 	digitalWrite(LED_STATUS,LOW);
-	delay(500);
+	delay(5000);
 }
 

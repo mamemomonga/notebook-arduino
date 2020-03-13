@@ -26,6 +26,7 @@ class WiFiConfigClass {
 		void _setup_wifi_info();
 		void _clear_eeprom();
 		void _write_config_eeprom();
+		uint8_t _wifi_scan();
 
 		uint8_t _connect_to_wifi();
 		uint8_t _read_config_eeprom();

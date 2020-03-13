@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+
+<title></title>
+<meta name="viewport" content="width=800">
+
+<% if(production) { %>
+<style type="text/css"><%- css %></style>
+<script type="text/javascript">// <![CDATA[
+<%- js %>
+// ]]></script>
+<% } else { %>
+<link rel="stylesheet" type="text/css" href="./index.css" media="all">
+<script src="./index.js"></script>
+<% } %>
+
+</head><body>
+
+<div class="container">
+
+<div id="d_ap">
+<h1>無線LAN接続の設定</h1>
+
+<div id="d_submit_warn">
+<p>確定ボタンを押すまで反映されません</p>
+</div>
+
+<div id="d_ap_list">
+<h2>アクセスポイントの設定</h2>
+<p>アクセスポイントは4つまで設定できます</p>
+<table id="t_ap_list"></table>
+
+<div id="d_submit">
+<input type="button" id="b_submit" value="確定">
+　　　　　　
+<input type="button" id="b_clear" value="クリア">
+</div>
+
+<hr>
+
+<input type="button" id="b_reset" value="工場出荷設定">
+
+</div>
+
+</div>
+
+<div id="d_ap_info">
+<h2>アクセスポイントの設定 → <span id="s_ap_info_num"></span> 番</h2>
+<table>
+<tr><td>SSID</td><td><input type="text" id="t_ap_info_ssid" size="32" maxlength="64"></td></tr>
+<tr><td>パスフレーズ</td><td><input type="text" id="t_ap_info_passphase" size="64" maxlength="64"></td></tr>
+<tr><td colspan="2">
+<input type="button" id="b_ap_info_back" value="戻る">
+<input type="button" id="b_ap_info_scan" value="スキャン">
+<input type="button" id="b_ap_info_commit" value="設定">
+</td></tr>
+<table>
+</div>
+
+<div id="d_ap_scan_now">
+<p><blink>ただいまスキャン中！</blink></p>
+</div>
+
+<div id="d_ap_scan">
+<h2>アクセスポイントの設定 → <span id="s_ap_scan_num"></span> 番 → スキャン</h2>
+<p>電波の強い順番です</p>
+<table id="t_ap_scan"></table>
+<input type="button" id="b_ap_scan_back" value="戻る">
+</div>
+
+<div id="d_submit_exec">
+<p>設定を反映しています。</p>
+<p>状態LEDが1秒ごとの点滅になったら設定完了です。この端末を同じネットワークに接続して、<a href="http://esp8266.local/">http://esp8266.local/</a> にアクセスしてください。</p>
+</div>
+
+<div id="d_reset_exec">
+<p>工場出荷時に戻しています。</p>
+<p>しばらく待ってこのページをリロードしてください。</p>
+</div>
+
+</div>
+</body>
+</html>

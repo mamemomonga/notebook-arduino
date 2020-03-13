@@ -5,7 +5,9 @@
 #define WIFISETUP_SSID       "WROOM-SETUP"
 #define WIFISETUP_IPADDRESS  192,168,4,1
 #define LED_STATUS 4
-#define FORCE_CONFIG_PIN 13
+#define FORCE_CONFIG_PIN 12
+
+#define DEBUG_WIFI_MULTI
 
 #endif
 
