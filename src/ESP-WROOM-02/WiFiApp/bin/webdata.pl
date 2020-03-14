@@ -1,6 +1,5 @@
 #!/usr/bin/env perl
 # Webデータ生成
-#
 use feature qw( say );
 use utf8;
 use strict;
@@ -40,18 +39,12 @@ sub file_read {
 	my $buf=<<'__EOS__';
 #ifndef _WEBDATA_H_
 #define _WEBDATA_H_
-
 #include "Arduino.h"
-
-class WebDataClass {
-	public:
 __EOS__
 	foreach(@targets) {
-		$buf.="\t\tString $_->[0]();\n";
+		$buf.="String WebData$_->[0]();\n";
 	}
 	$buf.=<<'__EOS__';
-};
-
 #endif
 __EOS__
 	file_write("$BASEDIR/WebData.h",$buf);
@@ -64,18 +57,9 @@ __EOS__
 		$data=~s/\\/\\\\/g;
 		$data=~s/\r?\n/\\n/g;
 		$data=~s/"/\\"/g;
-		$buf.="String WebDataClass::$_->[0]() {\n";
+		$buf.="String WebData$_->[0]() {\n";
 		$buf.=qq{\treturn F("$data");\n\}\n};
 	}
 	file_write("$BASEDIR/WebData.cpp",$buf);
 }
 
-say qq{ ------------------------------------------------ };
-say qq{  #include "WebData.h"};
-say qq{  ...};
-say qq{  WebDataClass web_data;};
-for(@targets) {
-	say qq{  server.send(200, "text/html", web_data.$_->[0]());};
-}
-say qq{ ------------------------------------------------ };
-	

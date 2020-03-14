@@ -1,48 +1,27 @@
-#include "WiFiConfig.h"
-#include "WebData.h"
+#include "MainApp.h"
 
-WiFiConfigClass::WiFiConfigClass() {
-}
+MainAppClass::MainAppClass(){}
 
-void WiFiConfigClass::begin() {
-
-	delay(100);
-	pinMode(12,INPUT_PULLUP);
-
-	while(1) {
-
+void MainAppClass::setup() {
+	Serial.println("[MainApp] Setup"); 
+	while(true) {
 		if( digitalRead(FORCE_CONFIG_PIN) == LOW ) {
-			_setup_wifi_info();
+			wifi_setup();
 		}
-
 		if( !storage.load() ) {
-			_setup_wifi_info();
+			wifi_setup();
 		}
-
-		// 接続開始
-		if(_connect_to_wifi()) { // 0:成功
-			_setup_wifi_info();
-
-		} else {
-			// 接続成功
+		if( wifi_connect() ) {
 			break;
 		}
+		wifi_setup();
 	}
-	delay(1000);
 }
 
-void WiFiConfigClass::send_error() {
-	server->send(200,"text/json","{ \"error\": 1 }");
-}
-
-void WiFiConfigClass::send_success() {
-	server->send(200,"text/json","{ \"error\": 0 }");
-}
-
-void WiFiConfigClass::_setup_wifi_info() {
+void MainAppClass::wifi_setup() {
 
 	// CaptivePortal
-	_server_enable=1;
+	uint8_t _server_enable=1;
 
 	WiFi.mode(WIFI_STA);
 
@@ -54,44 +33,37 @@ void WiFiConfigClass::_setup_wifi_info() {
 	softap.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
 
 	if( softap.softAP( WIFISETUP_SSID )) {
-		Serial.println("[SetupWifi] SoftAP Start\r\n");
+		Serial.println(F("[WiFiSetup] SoftAP Start"));
 	}
 
 	if(dnsServer.start(53, "*", apIP)) {
-		Serial.println("[SetupWifi] DNS Start\r\n");
+		Serial.println(F("[WiFiSetup] DNS Start"));
 	}
 
-	if(MDNS.begin(WIFISETUP_HOSTNAME)) {
-		Serial.println("[SetupWifi] mDNS Start\r\n");
-	}
+//	if(MDNS.begin(WIFISETUP_HOSTNAME)) {
+//		Serial.println(F("[WiFiSetup] mDNS Start"));
+//	}
 
-
-	Serial.printf("[SetupWifi] Start\r\n");
-	Serial.printf("[SetupWifi] SSID: %s\r\n", WIFISETUP_SSID );
-
-	delay(100);
+	Serial.printf_P(PSTR("[WiFiSetup] SSID: %s\r\n"), WIFISETUP_SSID );
 
 	IPAddress myIP = softap.softAPIP();
-	Serial.print("[SetupWifi] AP IP address: ");
-	Serial.println(myIP);
-
-
-	WebDataClass web_data;
+	Serial.printf_P(PSTR("[WiFiSetup] AP IP: %d.%d.%d.%d\r\n"), myIP[0], myIP[1], myIP[2], myIP[3]);
 
 	server.on("/",[&](){
-		Serial.println("[SetupWifi] Serve /");
-		server.send(200, "text/html",web_data.WiFiSetupIndex());
+		Serial.println(F("[WiFiSetup] Serve /"));
+		server.send(200, "text/html",WebDataWiFiSetupIndex());
 		return;
 	});
 
 	server.on("/api/page",[&](){
+		Serial.println(F("[WiFiSetup] Serve /api/page"));
 		server.send(200, "text/json","{ \"error\": 0,\"page\":\"index\" }");
 	});
 
 	server.on("/api/ap/config",[&](){
-		Serial.println("[SetupWifi] Serve /api/ap/config");
+		Serial.println(F("[WiFiSetup] Serve /api/ap/config"));
 		if( server.method() != HTTP_POST ) {
-			send_error();
+			server.send(200,"text/json","{ \"error\": 1 }");
 			return;
 		}
 		for(uint8_t i=0; i<=4; i++) {
@@ -108,7 +80,7 @@ void WiFiConfigClass::_setup_wifi_info() {
 			if(update == 1) {
 				strcpy(storage.WifiConnectionInfo[i].ssid,      ssid);
 				strcpy(storage.WifiConnectionInfo[i].passphase, passphase);
-				Serial.printf("[SetupWifi] Update Entry %d: SSID: %s\r\n",i,storage.WifiConnectionInfo[i].ssid,ssid);
+				Serial.printf("[WifiSetup] Update Entry %d: SSID: %s\r\n",i,storage.WifiConnectionInfo[i].ssid,ssid);
 			}
 		}
 		storage.save();
@@ -118,32 +90,32 @@ void WiFiConfigClass::_setup_wifi_info() {
 	});
 
 	server.on("/api/ap/reset",[&](){
-		Serial.println("[SetupWifi] Serve /api/ap/reset");
+		Serial.println(F("[WiFiSetup] Serve /api/ap/reset"));
 		if( server.method() != HTTP_POST ) {
-			send_error();
+			server.send(200,"text/json","{ \"error\": 1 }");
 			return;
 		}
 		if( server.arg("execute_reset").toInt() == 42 ) {
 			storage.clear();
 			_server_enable=0;
-			send_success();
+			server.send(200,"text/json","{ \"error\": 0 }");
 		} else {
-			send_error();
+			server.send(200,"text/json","{ \"error\": 1 }");
 		}
 		return;
 	});
 
 	server.on("/api/ap/scan",[&](){
-		Serial.println("[SetupWifi] Serve /api/ap/scan");
+		Serial.println(F("[WiFiSetup] Serve /api/ap/scan"));
 
 		// WiFiスキャン
 		WiFi.disconnect();
 		delay(100);
 		uint8_t networksFound = WiFi.scanNetworks(false,false);
-		Serial.printf("[SetupWifi] %d network(s) found\r\n", networksFound);
+		Serial.printf_P(PSTR("[WiFiSetup] %d network(s) found\r\n"), networksFound);
 
 		for (int i = 0; i < networksFound; i++) {
-			Serial.printf("[SetupWifi]   %d: %s, Ch:%d (%ddBm) %s\r\n",
+			Serial.printf_P(PSTR("[WiFiSetup]   %d: %s, Ch:%d (%ddBm) %s\r\n"),
 				i + 1,
 				WiFi.SSID(i).c_str(),
 				WiFi.channel(i),
@@ -167,7 +139,7 @@ void WiFiConfigClass::_setup_wifi_info() {
 	});
 
 	server.on("/api/ap/list",[&](){
-		Serial.println("[SetupWifi] Serve /api/ap/current");
+		Serial.println(F("[WiFiSetup] Serve /api/ap/current"));
 
 		storage.load();
 
@@ -182,7 +154,7 @@ void WiFiConfigClass::_setup_wifi_info() {
 	});
 
 	server.onNotFound([&]() {
-		Serial.println("[SetupWifi] Serve 404");
+		Serial.println("[WiFiSetup] Serve 404");
 		char redirect[32];
 		snprintf_P(redirect,sizeof(redirect),PSTR("http://%d.%d.%d.%d/"),myIP[0],myIP[1],myIP[2],myIP[3]);
 		server.sendHeader("Location", redirect, true);
@@ -190,7 +162,7 @@ void WiFiConfigClass::_setup_wifi_info() {
 	});
 
 	server.begin();
-	Serial.println("[SetupWifi] HTTP server started");
+	Serial.println(F("[WiFiSetup] HTTP server started"));
 
 	unsigned long last_millis=0;
 
@@ -199,7 +171,7 @@ void WiFiConfigClass::_setup_wifi_info() {
 
 		dnsServer.processNextRequest();
 		server.handleClient();
-		MDNS.update();
+//		MDNS.update();
 
 		unsigned long current_millis=millis();
 		if( ( current_millis - last_millis ) > 50 ) {
@@ -210,8 +182,9 @@ void WiFiConfigClass::_setup_wifi_info() {
 
 }
 
-uint8_t WiFiConfigClass::_connect_to_wifi() {
-	Serial.printf("[SetupWifiConnect] CONNECT TO WIFI\r\n");
+uint8_t MainAppClass::wifi_connect() {
+	Serial.printf_P(PSTR("[ConnectWiFi] begin\r\n"));
+
 	ESP8266WiFiMulti wifiMulti;
 
 	uint8_t ready=0;
@@ -219,15 +192,15 @@ uint8_t WiFiConfigClass::_connect_to_wifi() {
 		if( storage.WifiConnectionInfo[i].ssid[0]      == '\0' ) { continue; }
 		if( storage.WifiConnectionInfo[i].passphase[0] == '\0' ) { continue; }
 		ready=1;
-		Serial.print("[SetupWifiConnect] ADD SSID:"); Serial.println( storage.WifiConnectionInfo[i].ssid );
+		Serial.print(F("[ConnectWiFi] ADD SSID:")); Serial.println( storage.WifiConnectionInfo[i].ssid );
 		wifiMulti.addAP(storage.WifiConnectionInfo[i].ssid, storage.WifiConnectionInfo[i].passphase);
 	}
 	if(!ready) {
-		Serial.printf("[SetupWifiConnect] CONFIG FAILED\r\n");
-		return 1;
+		Serial.printf_P(PSTR("[ConnectWiFi] CONFIG FAILED\r\n"));
+		return 0;
 	}
 
-	Serial.printf("[SetupWifiConnect] Connecting...\r\n");
+	Serial.printf_P(PSTR("[ConnectWiFi] Connecting...\r\n"));
 	while(wifiMulti.run() != WL_CONNECTED) {
 		if( digitalRead(FORCE_CONFIG_PIN) == LOW ) { return 1; }
 		digitalWrite(LED_STATUS,LOW);
@@ -238,11 +211,10 @@ uint8_t WiFiConfigClass::_connect_to_wifi() {
 
 	IPAddress ip = WiFi.localIP();
 	uint8_t * mac = WiFi.BSSID();
-	Serial.printf("[SetupWifiConnect] Connected!\r\n");
-	Serial.printf("[SetupWifiConnect]   SSID: %s\r\n",WiFi.SSID().c_str());
-	Serial.printf("[SetupWifiConnect]   Channel: %d\r\n", WiFi.channel());
-	Serial.printf("[SetupWifiConnect]   MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-	Serial.printf("[SetupWifiConnect]   IP: %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]);
-	return 0;
-
+	Serial.printf("[ConnectWiFi] Connected!\r\n");
+	Serial.printf("[ConnectWiFi]   SSID: %s\r\n",WiFi.SSID().c_str());
+	Serial.printf("[ConnectWiFi]   Channel: %d\r\n", WiFi.channel());
+	Serial.printf("[ConnectWiFi]   MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	Serial.printf("[ConnectWiFi]   IP: %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]);
+	return 1;
 }

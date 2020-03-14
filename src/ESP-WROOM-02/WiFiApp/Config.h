@@ -2,13 +2,11 @@
 #define _CONFIG_H_
 
 // 初期セットアップ時に使用するWiFi情報
-#define WIFISETUP_SSID       "WROOM-SETUP3"
-#define WIFISETUP_HOSTNAME   "wroom-setup3"
+#define WIFISETUP_SSID       "WROOM-SETUP4"
+#define WIFISETUP_HOSTNAME   "wroom-setup4"
 #define WIFISETUP_IPADDRESS  192,168,4,1
 #define LED_STATUS 4
 #define FORCE_CONFIG_PIN 12
-
-#define DEBUG_WIFI_MULTI
 
 #endif
 

@@ -5,7 +5,7 @@ StorageClass::StorageClass() {
 }
 
 void StorageClass::_init() {
-	Serial.println(F("[Storage] Init\r\n"));
+	Serial.println(F("[Storage] Init"));
 	for(uint8_t i=0;i<4;i++) {
 		WifiConnectionInfo[i].ssid[0]      = '\0';
 		WifiConnectionInfo[i].passphase[0] = '\0';
@@ -63,25 +63,25 @@ uint8_t StorageClass::_read(char header[5]) {
 }
 
 uint8_t StorageClass::load() {
-	Serial.printf_P(PSTR("[Storage] Load EEPROM\r\n"));
+	Serial.println(F("[Storage] Load EEPROM"));
 
 	if(_read("REDY")) {
-		Serial.println(F("[Storage] Data OK\r\n"));
+		Serial.println(F("[Storage] Data OK"));
 		return 1;
 	} else {
-		Serial.println(F("[Storage] Data NG\r\n"));
+		Serial.println(F("[Storage] Data NG"));
 		return 0;
 	}
 }
 
 void StorageClass::save() {
-	Serial.printf_P(PSTR("[Storage] Save EEPROM\r\n"));
+	Serial.println(F("[Storage] Save EEPROM"));
 	_write("REDY");
 }
 
 void StorageClass::clear() {
 	_init();
-	Serial.printf_P(PSTR("[Storage] Clear EEPROM\r\n"));
+	Serial.println(F("[Storage] Clear EEPROM"));
 	_write("FAIL");
 }
 
