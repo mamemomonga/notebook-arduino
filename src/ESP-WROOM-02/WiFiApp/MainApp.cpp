@@ -8,58 +8,91 @@ ESP8266WiFiMulti wifiMulti;
 MainAppClass::MainAppClass(){}
 
 
+void MainAppClass::hard_reset() {
+	Serial.println("[MainApp] HARD RESET!"); 
+	delay(500);
+	// IO0をAVRにつないでハードリセットに使う
+	pinMode(0,OUTPUT);
+	digitalWrite(0,LOW);
+	ESP.reset();
+}
+
+
 void MainAppClass::init() {
 	Serial.println("[MainApp] Init"); 
-	WiFi.mode(WIFI_OFF);
-	delay(1000);
 	sta=0;
 
 	WiFi.mode(WIFI_AP_STA);
 	setup_webserver();
 	setup_ap();
 
+	if (!MDNS.begin(WIFISETUP_HOSTNAME)) {
+		Serial.println("[MainApp] Error setting up MDNS responder!");
+	}
+	Serial.println("[MainApp] mDNS responder started");
+	MDNS.addService("http", "tcp", 80);
+
 	if(storage.load()) {
 		sta=1;
 	}
 	sta_ct=0;
+	tmpString="";
 }
 
-void MainAppClass::run() {
-	Serial.println("[MainApp] Run"); 
-
-	while(true) {
- 		unsigned long current_millis=millis();
-
-		dnsServer.processNextRequest();
-		server.handleClient();
-
-		// 50ms割込
- 		if( ( current_millis - last_millis ) > 50 ) {
-			// LED点滅
- 			if( digitalRead(LED_STATUS) ) { digitalWrite(LED_STATUS,LOW); } else { digitalWrite(LED_STATUS,HIGH); }
-			// 1000ms割込
-			if(sta_ct > 20) {
-				sta_connect();
-				sta_ct=0;
-			}
-			sta_ct++;
- 			last_millis=current_millis;
- 		}
+void MainAppClass::handle() {
+ 	unsigned long current_millis=millis();
+	// オーバーフロー
+	if(current_millis < last_millis) {
+ 		last_millis=current_millis;
 	}
+
+	dnsServer.processNextRequest();
+	server.handleClient();
+	MDNS.update();
+
+	// 50ms割込
+ 	if( ( current_millis - last_millis ) > 50 ) {
+		// LED点滅
+ 		if( digitalRead(LED_STATUS) ) { digitalWrite(LED_STATUS,LOW); } else { digitalWrite(LED_STATUS,HIGH); }
+		// 1000ms割込
+		if(sta_ct > 20) {
+			sta_connect();
+			sta_ct=0;
+		}
+		sta_ct++;
+ 		last_millis=current_millis;
+ 	}
 }
 
 void MainAppClass::setup_webserver() {
 
+	// ----
 	server.on("/",[&](){
 		Serial.println(F("[WebServer] Serve /"));
 		server.send(200, "text/html",WebDataWiFiSetupIndex());
 	});
 
+	// ----
 	server.on("/api/page",[&](){
 		Serial.println(F("[WebServer] Serve /api/page"));
 		server.send(200, "text/json","{ \"error\": 0,\"page\":\"index\" }");
 	});
 
+	// ----
+	server.on("/api/ap/info",[&](){
+		char aips[17];
+		char sips[17];
+		IPAddress api = softap.softAPIP();
+		IPAddress sip = WiFi.localIP();
+		snprintf(aips,17,"%d.%d.%d.%d",api[0],api[1],api[2],api[3]);
+		snprintf(sips,17,"%d.%d.%d.%d",sip[0],sip[1],sip[2],sip[3]);
+
+		char b[255];
+		snprintf_P(b, 255, PSTR("{\"error\":0,\"hostname\":\"%s\",\"ap_ip\":\"%s\",\"ap_ssid\":\"%s\",\"sta_ip\":\"%s\",\"sta_ssid\":\"%s\"}"), WIFISETUP_HOSTNAME, aips, WIFISETUP_SSID, sips, WiFi.SSID().c_str());
+		server.send(200, "text/json", String(b));
+	});
+
+	// ----
 	server.on("/api/ap/config",[&](){
 		Serial.println(F("[WebServer] Serve /api/ap/config"));
 		if( server.method() != HTTP_POST ) {
@@ -87,9 +120,11 @@ void MainAppClass::setup_webserver() {
 		server.send(200, "text/json","{ \"error\": 0 }");
 
 		sta=1;
+		hard_reset();
 		return;
 	});
 
+	// ----
 	server.on("/api/ap/reset",[&](){
 		Serial.println(F("[WebServer] Serve /api/ap/reset"));
 		if( server.method() != HTTP_POST ) {
@@ -102,42 +137,49 @@ void MainAppClass::setup_webserver() {
 		} else {
 			server.send(200,"text/json","{ \"error\": 1 }");
 		}
+		hard_reset();
 		return;
 	});
 
+	// ----
 	server.on("/api/ap/scan",[&](){
-		Serial.println(F("[WebServer] Serve /api/ap/scan"));
+		// POSTで取得開始
+		if( server.method() == HTTP_POST ) {
+			Serial.println(F("[WebServer] Serve GET /api/ap/scan"));
+			server.send(200,"text/json","{ \"error\": 0 }");
 
-		// WiFiスキャン
-		WiFi.disconnect();
-		delay(100);
-		uint8_t networksFound = WiFi.scanNetworks(false,false);
-		Serial.printf_P(PSTR("[WebServer] %d network(s) found\r\n"), networksFound);
-
-		for (int i = 0; i < networksFound; i++) {
-			Serial.printf_P(PSTR("[WebServer]   %d: %s, Ch:%d (%ddBm) %s\r\n"),
-				i + 1,
-				WiFi.SSID(i).c_str(),
-				WiFi.channel(i),
-				WiFi.RSSI(i),
-				WiFi.encryptionType(i) == ENC_TYPE_NONE ? "open" : ""
-			);
+			WiFi.disconnect();
+			delay(100);
+			uint8_t networksFound = WiFi.scanNetworks(false,false);
+			Serial.printf_P(PSTR("[WebServer] %d network(s) found\r\n"), networksFound);
+			for (int i = 0; i < networksFound; i++) {
+				Serial.printf_P(PSTR("[WebServer]   %d: %s, Ch:%d (%ddBm) %s\r\n"),
+					i + 1,
+					WiFi.SSID(i).c_str(),
+					WiFi.channel(i),
+					WiFi.RSSI(i),
+					WiFi.encryptionType(i) == ENC_TYPE_NONE ? "open" : ""
+				);
+			}
+			tmpString="{ \"result\": 0, \"data\": [";
+			for (int i = 0; i < networksFound; i++) {
+				// Openネットワークは表示しない
+				if( WiFi.encryptionType(i) == ENC_TYPE_NONE ) { continue; }
+				char b[255];
+				snprintf_P(b,sizeof(b),PSTR("{\"ssid\":\"%s\",\"channel\":%d,\"rssi\":%d}"),
+					WiFi.SSID(i).c_str(), WiFi.channel(i), WiFi.RSSI(i));
+				tmpString=tmpString+b;
+				if(i == (networksFound-1)) { tmpString=tmpString+"]}"; } else { tmpString=tmpString+","; }
+			}
+		// GETで結果返答
+		} else if( server.method() == HTTP_GET ) {
+			server.send(200, "text/json",tmpString);
+		} else {
+			server.send(200,"text/json","{ \"error\": 1 }");
 		}
-		delay(100);
-
-		String buf="{ \"result\": 0, \"data\": [";
-		for (int i = 0; i < networksFound; i++) {
-			// Openネットワークは表示しない
-			if( WiFi.encryptionType(i) == ENC_TYPE_NONE ) { continue; }
-			char b[255];
-			snprintf_P(b,sizeof(b),PSTR("{\"ssid\":\"%s\",\"channel\":%d,\"rssi\":%d}"),
-				WiFi.SSID(i).c_str(), WiFi.channel(i), WiFi.RSSI(i));
-			buf=buf+b;
-			if(i == (networksFound-1)) { buf=buf+"]}"; } else { buf=buf+","; }
-		}
-		server.send(200, "text/json",buf);
 	});
 
+	// ----
 	server.on("/api/ap/list",[&](){
 		Serial.println(F("[WebServer] Serve /api/ap/current"));
 
@@ -153,6 +195,7 @@ void MainAppClass::setup_webserver() {
 		server.send(200, "text/json",buf);
 	});
 
+	// ----
 	server.onNotFound([&]() {
 		Serial.println("[WebServer] Serve 404");
 		char redirect[32];
@@ -178,7 +221,7 @@ void MainAppClass::setup_ap() {
 	}
 
 	IPAddress ip  = softap.softAPIP();
-	Serial.printf("[SetupAP]   SSID: %s\r\n",WIFISETUP_SSID);
+	Serial.printf("[SetupAP]   SSID: %s\r\n", WIFISETUP_SSID);
 	Serial.printf("[SetupAP]   Channel: %d\r\n", WIFISETUP_CHANNEL);
 	Serial.printf("[SetupAP]   IP: %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]);
 }
@@ -190,7 +233,6 @@ void MainAppClass::sta_connect() {
 		if(sta == 2) {
 			IPAddress ip = WiFi.localIP();
 			uint8_t * mac = WiFi.BSSID();
-			Serial.println(F("[ConnectSTA] STA Start"));
 			Serial.printf("[ConnectSTA]   SSID: %s\r\n",WiFi.SSID().c_str());
 			Serial.printf("[ConnectSTA]   Channel: %d\r\n", WiFi.channel());
 			Serial.printf("[ConnectSTA]   MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);

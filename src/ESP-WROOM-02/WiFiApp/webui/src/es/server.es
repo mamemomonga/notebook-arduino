@@ -30,6 +30,10 @@ app.get('/api/ap/list', (req, res)=>{
 	res.send(JSON.stringify(data))
 })
 
+app.post('/api/ap/scan', (req, res)=>{
+	res.send('{ "error": 0 }')
+})
+
 app.get('/api/ap/scan', (req, res)=>{
 	console.log(req.body)
 	const data={

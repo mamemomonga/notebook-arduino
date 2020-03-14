@@ -7,6 +7,11 @@
 MainAppClass mainapp;
 
 void setup() {
+	Serial.println(""); 
+	Serial.println(""); 
+	Serial.println("----- STARTUP -----"); 
+	WiFi.mode(WIFI_OFF);
+
 	Serial.begin(115200);
 	pinMode(LED_STATUS,OUTPUT);
 	digitalWrite(LED_STATUS,HIGH);
@@ -16,6 +21,6 @@ void setup() {
 }
 
 void loop() {
-	mainapp.run();
+	mainapp.handle();
 }
 

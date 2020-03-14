@@ -112,7 +112,8 @@ export default class Index {
 		this.reset_disp_ap();
 		this.u.id('s_ap_scan_num').innerHTML=(new Number(n)+1);
 		this.u.show('d_ap_scan_now');
-		this.u.json('/api/ap/scan').then((d)=>{
+
+		const render=(d)=>{
 			let html='<tr><td>SSID</td><td>Ch.</td><td>RSSI</td><td></td></tr>';
 			d.data.sort((a,b)=>{ return b.rssi - a.rssi })
 			for(let i in d.data) {
@@ -137,6 +138,11 @@ export default class Index {
 				.click('b_ap_scan_back', (e)=>{ this.ap_info_edit(n) })
 				.hide('d_ap_scan_now')
 				.show('d_ap_scan')
+		}
+		this.u.json('/api/ap/scan',{"fetch":1}).then(()=>{
+			setTimeout(()=>{
+				this.u.json('/api/ap/scan').then((d)=>{ render(d) });
+			},1000)
 		})
 	}
 }
