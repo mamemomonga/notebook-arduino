@@ -12,16 +12,24 @@
 #include <ESP8266WebServer.h>
 #include <WiFiClient.h>
 #include <DNSServer.h>
-// #include <ESP8266mDNS.h>
+#include <ESP8266mDNS.h>
 
 class MainAppClass {
 	public:
 		MainAppClass();
 		StorageClass storage;
-		void setup();
+		void run();
+		void init();
+
 	private:
-		void wifi_setup();
-		uint8_t wifi_connect();
+		void setup_webserver();
+		void setup_ap();
+		void sta_connect();
+
+		uint8_t sta;
+		uint8_t sta_ct;
+		unsigned long last_millis;
+
 	protected:
 };
 
