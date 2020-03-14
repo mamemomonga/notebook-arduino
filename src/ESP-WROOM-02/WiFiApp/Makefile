@@ -12,6 +12,9 @@ upload:
 serial:
 	screen $(ARDUINO_PORT) 115200
 
-webdata:
+webui/var/build/public/index.html:
+	cd webui && make
+
+webdata: webui/var/build/public/index.html
 	bin/webdata.pl
 
