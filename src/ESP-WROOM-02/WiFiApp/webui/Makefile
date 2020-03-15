@@ -1,6 +1,6 @@
 SOURCE:=$(shell find src -type f)
 
-default: $(SOURCE)
+build:
 	yarn run gulp
 
 run:

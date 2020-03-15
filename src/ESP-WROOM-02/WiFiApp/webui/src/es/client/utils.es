@@ -5,31 +5,39 @@ export default class Utils {
 		this.w=window_obj
 		this.d=this.w.document
 		this.events=[];
+		this.layout={};
+	}
+	layout_setting(v) {
+		if(v) this.layout=v
+	}
+	reset() {
+		for(let i in this.layout.hide) {
+			this.hide(this.layout.hide[i])
+		}
+		for(let i in this.layout.show) {
+			this.show(this.layout.show[i])
+		}
+		this.clear_events()
+		return this
 	}
 	id(target) {
 		return this.d.getElementById(target)
 	}
-	click(id,li) {
-		const el=this.id(id);
-		el.addEventListener('click',li);
-		this.events.push([el,'click',li]);
-		return this
-	}
-	clear_events() {
-		for(let i in this.events) {
-			const e=this.events[i];
-			e[0].removeEventListener(e[1],e[2])
-		}
-		this.events=[]
-		return this
-	}
 	show(id) {
+		console.log("show:"+id)
 		this.id(id).style.display = 'block'
 		return this
 	}
 	hide(id) {
+		console.log("hide:"+id)
 		this.id(id).style.display = 'none'
 		return this
+	}
+	enable(id) {
+		this.id(id).disabled=false;
+	}
+	disable(id) {
+		this.id(id).disabled=true;
 	}
 	json(url,data){
 		return new Promise((resolve,reject)=>{

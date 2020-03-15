@@ -77,7 +77,7 @@ void MainAppClass::setup_webserver() {
 		snprintf(sips,17,"%d.%d.%d.%d",sip[0],sip[1],sip[2],sip[3]);
 
 		char b[255];
-		snprintf_P(b, 255, PSTR("{\"error\":0,\"hostname\":\"%s\",\"ap_ip\":\"%s\",\"ap_ssid\":\"%s\",\"sta_ip\":\"%s\",\"sta_ssid\":\"%s\"}"), WIFISETUP_HOSTNAME, aips, WIFISETUP_SSID, sips, WiFi.SSID().c_str());
+		snprintf_P(b, 255, PSTR(R"({"error":0,"hostname":"%s","ap":{"ip":"%s","ssid":"%s"},"sta":{"ip":"%s","ssid":"%s"}})"), WIFISETUP_HOSTNAME, aips, WIFISETUP_SSID, sips, WiFi.SSID().c_str());
 		server.send(200, "text/json", String(b));
 	});
 

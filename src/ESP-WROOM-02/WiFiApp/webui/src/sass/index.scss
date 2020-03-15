@@ -5,13 +5,140 @@ body {
 	font-family: sans-serif;
 }
 
+button {
+	display: inline-block;
+	font-size: 1rem;
+	padding: 0.5em 1em;
+	margin: 5px 0 5px 0;
+	text-decoration: none;
+	background: #f7f7f7;
+	border-left: solid 6px #000000;
+	color: #000000;
+	font-weight: bold;
+	box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.29);
+	border-radius: 5px;
+}
+
+.bt_blue {
+	border-left: solid 6px #0000FF;
+	color: #0000FF;
+}
+
+.bt_red {
+	border-left: solid 6px #FF0000;
+	color: #FF0000;
+}
+
+.bt_brown {
+	border-left: solid 6px #990000;
+	color: #990000;
+}
+
+.bt_green {
+	border-left: solid 6px #009900;
+	color: #009900;
+}
+
+button:disabled {
+	color: #666666;
+	border-left: solid 6px #666666;
+	box-shadow: none;
+}
+
+button:active {
+	box-shadow: inset 0 0 2px rgba(128, 128, 128, 0.1);
+	transform: translateY(2px);
+}
+
 .container {
-	max-width: 800px;
+	width: 1000px;
 	margin: 10px auto;
-	padding: 40px 80px;
+	padding: 20px 20px;
 	border: 1px solid #DDDDDD;
 	border-radius: 0px;
 }
+
+.panel_top {
+	width: 968px;
+	clear:both;
+	padding: 10px;
+	margin: 5px;
+	border: 1px solid #AAAAAA;
+}
+
+.panel_top h1 {
+	padding: 2px;
+	margin: 0px;
+	font-weight: bold;
+	font-size: 2rem;
+}
+
+.panel_left {
+	width: 200px;
+	border: 1px solid #AAAAAA;
+	float: left;
+	padding: 10px;
+	margin: 5px;
+}
+
+.panel_left h1 {
+	padding: 2px;
+	margin: 0px;
+	background-color:#EEEEEE;
+	font-size: 1.2rem;
+	font-weight: normal;
+	text-align: center;
+}
+
+.panel_left button {
+	width: 100%;
+}
+.panel_left .commit {
+	background-color: #FFEEEE;
+	margin: 10px 0 10px 0;
+	display: none;
+}
+
+.panel_left .commit p {
+	padding: 10px 0 10px 0;
+}
+
+.panel_left p {
+	padding: 2px;
+	margin: 0px;
+	font-size: 1rem;
+	font-weight: normal;
+	text-align: center;
+}
+.panel_center {
+	width: 730px;
+	float: right;
+	padding: 10px;
+	margin: 5px;
+}
+
+.panel_bottom {
+	width: 968px;
+	clear:both;
+	padding: 10px;
+	margin: 5px;
+	border: 1px solid #AAAAAA;
+	text-align: right;
+}
+.panel_bottom small {
+	color: #999999;
+}
+
+.panel_center button {
+	width: 150px;
+	margin: 0 10px 0 10px;
+}
+
+.panel_center td button {
+	width: 100px;
+	margin: 0 10px 0 10px;
+}
+
 
 h1 {
 	padding: 10px;
@@ -56,21 +183,7 @@ table td {
 	display:none;
 }
 
-#d_ap {
-	display:none;
-}
-
-#d_ap_list {
-	display:none;
-}
-#d_ap_scan {
-	display:none;
-}
-#d_ap_info{
-	display:none;
-}
 #d_ap_scan_now {
-	display:none;
 	animation: d_ap_scan_now_a 0.2s infinite alternate;
 
 }
@@ -79,22 +192,3 @@ table td {
  100% { color: #000000 }
 }
 
-#d_submit {
-	display:none;
-	padding: 5px;
-}
-
-#d_submit_warn {
-	text-align: center;
-	background-color:#FFAAAA;
-	font-weight: bold;
-	display:none;
-	padding: 5px;
-	border: 2px solid #000000;
-}
-#d_submit_exec {
-	display: none;
-}
-#d_reset_exec {
-	display: none;
-}
