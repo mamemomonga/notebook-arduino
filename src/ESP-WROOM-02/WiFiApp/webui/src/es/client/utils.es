@@ -1,24 +1,9 @@
 // vim:ft=javascript
 
 export default class Utils {
-	constructor(window_obj){
-		this.w=window_obj
+	constructor(w){
+		this.w=w
 		this.d=this.w.document
-		this.events=[];
-		this.layout={};
-	}
-	layout_setting(v) {
-		if(v) this.layout=v
-	}
-	reset() {
-		for(let i in this.layout.hide) {
-			this.hide(this.layout.hide[i])
-		}
-		for(let i in this.layout.show) {
-			this.show(this.layout.show[i])
-		}
-		this.clear_events()
-		return this
 	}
 	id(target) {
 		return this.d.getElementById(target)
@@ -39,6 +24,10 @@ export default class Utils {
 	disable(id) {
 		this.id(id).disabled=true;
 	}
+	inner(id,h) {
+		return h ? (this.id(id).innerHTML=h) : h;
+	}
+
 	json(url,data){
 		return new Promise((resolve,reject)=>{
 			const request = new XMLHttpRequest();
@@ -72,3 +61,4 @@ export default class Utils {
 		})
 	}
 }
+

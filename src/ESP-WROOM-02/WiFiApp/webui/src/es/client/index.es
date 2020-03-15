@@ -1,52 +1,10 @@
 // vim:ft=javascript
-
 import Utils from './utils.es'
+import { Events, Pages } from './pages.es'
 
-class Events {
-	constructor(u){
-		this.u=u
-		this.events=[]
-	}
-	click(id,li) {
-		const el=this.u.id(id);
-		el.addEventListener('click',li);
-		this.events.push([el,'click',li]);
-		return this
-	}
-	clear() {
-		for(let i in this.events) {
-			const e=this.events[i];
-			e[0].removeEventListener(e[1],e[2])
-		}
-		this.events=[]
-		return this
-	}
-}
+const ut=new Utils(window)
 
-class Pa {
-	constructor(p){
-		this.stash=p.stash
-		this.reset=()=>{ p.reset(); return this }
-		this.u=p.u
-		this.ev=new Events(this.u)
-	}
-	show(n) {
-		this.number=n
-		this.reset().render().events()
-		this.u.show(this.ids[0])
-		return this
-	}
-	hide() {
-		for(let i in this.ids) {
-			this.u.hide(this.ids[i])
-		}
-		this.ev.clear()
-	}
-	render(){ return this }
-	events(){ return this }
-}
-
-class PaAPList extends Pa {
+class PaAPList extends Pages {
 	constructor(p){
 		super(p)
 		this.ids=['d_ap_list'];
@@ -55,8 +13,7 @@ class PaAPList extends Pa {
 		}
 	}
 	load() {
-		console.log("APList load")
-		this.u.json('/api/ap/list')
+		ut.json('/api/ap/list')
 		.then((d)=>{
 			for(let i in d.data) {
 				this.stash.ap[i]={ ssid: d.data[i].ssid, passphase: '', update: false }
@@ -85,12 +42,12 @@ class PaAPList extends Pa {
 			if(v.update) { update=true }
 		}
 		if(update) this.cb.committable(true)
-		this.u.id('t_ap_list').innerHTML=html;
+		ut.inner('t_ap_list',html);
 		return this;
 	}
 }
 
-class PaAPInfo extends Pa {
+class PaAPInfo extends Pages {
 	constructor(p){
 		super(p)
 		this.ids=['d_ap_info']
@@ -101,30 +58,30 @@ class PaAPInfo extends Pa {
 		}
 	}
 	render() {
-		this.u.id('s_ap_info_num').innerHTML=(new Number(this.number)+1);
-		this.u.id('t_ap_info_ssid').value=this.stash.ap[this.number].ssid
-		this.u.id('t_ap_info_passphase').value=this.stash.ap[this.number].passphase
+		ut.inner('s_ap_info_num',(new Number(this.number)+1));
+		ut.id('t_ap_info_ssid').value=this.stash.ap[this.number].ssid
+		ut.id('t_ap_info_passphase').value=this.stash.ap[this.number].passphase
 		return this
 	}
 	apply(ssid) {
 		this.reset().render().events()
-		this.u.id('t_ap_info_ssid').value=ssid
-		this.u.show(this.ids[0])
+		ut.id('t_ap_info_ssid').value=ssid
+		ut.show(this.ids[0])
 		return this
 	}
 	events() {
 		this.ev.click('b_ap_info_back',()=>{ this.cb.back() })
 		this.ev.click('b_ap_info_scan',()=>{ this.cb.scan(this.number) })
 		this.ev.click('b_ap_info_commit',()=>{
-			const ssid=this.u.id('t_ap_info_ssid').value
-			const passphase=this.u.id('t_ap_info_passphase').value
+			const ssid=ut.id('t_ap_info_ssid').value
+			const passphase=ut.id('t_ap_info_passphase').value
 			this.stash.ap[this.number]={ ssid: ssid, passphase: passphase, update: true }
 			this.cb.apply()
 		})
 		return this
 	}
 }
-class PaAPScan extends Pa {
+class PaAPScan extends Pages {
 	constructor(p){
 		super(p)
 		this.ids=['d_ap_scan','d_ap_scan_now']
@@ -136,9 +93,9 @@ class PaAPScan extends Pa {
 	}
 	fetch() {
 		return new Promise((resolve,reject)=>{
-			this.u.json('/api/ap/scan',{"fetch":1}).then(()=>{
+			ut.json('/api/ap/scan',{"fetch":1}).then(()=>{
 				setTimeout(()=>{
-					this.u.json('/api/ap/scan').then((d)=>{
+					ut.json('/api/ap/scan').then((d)=>{
 						this.d=d.data;
 						resolve()
 					}).catch((e)=>{ reject(e) });
@@ -148,12 +105,12 @@ class PaAPScan extends Pa {
 	}
 	show(n) {
 		this.number=n
-		this.u.id('s_ap_scan_num').innerHTML=(new Number(n)+1);
+		ut.inner('s_ap_scan_num',(new Number(n)+1));
 		this.reset()
-		this.u.show('d_ap_scan_now');
+		ut.show('d_ap_scan_now');
 		this.fetch().then(()=>{
 			this.reset().render().events()
-			this.u.hide('d_ap_scan_now').show(this.ids[0])
+			ut.hide('d_ap_scan_now').show(this.ids[0])
 		})
 		return this
 	}
@@ -169,7 +126,7 @@ class PaAPScan extends Pa {
 				+'<td><button id="t_ap_scan_sel_'+i+'" class="bt_blue">選択</button></td>';
 				+'</tr>'
 		}
-		this.u.id('t_ap_scan').innerHTML=html;
+		ut.inner('t_ap_scan',html);
 		return this
 	}
 	events() {
@@ -181,7 +138,8 @@ class PaAPScan extends Pa {
 		this.ev.click('b_ap_scan_back', ()=>{ this.cb.back(this.number) })
 	}
 }
-class PaAPCommit extends Pa {
+
+class PaAPCommit extends Pages {
 	constructor(p){
 		super(p)
 		this.ids=['d_ap_commit']
@@ -189,7 +147,7 @@ class PaAPCommit extends Pa {
 			cancel: ()=>{},
 			apply:  ()=>{},
 		}
-		this.evb=new Events(this.u);
+		this.evb=new Events(ut);
 		this.committable(false)
 	}
 	committable(n) {
@@ -198,11 +156,11 @@ class PaAPCommit extends Pa {
 	show_buttons() {
 		this.evb.click('b_commit',()=>{ this.commit() })
 		this.evb.click('b_cancel',()=>{ this.cb.cancel() })
-		this.u.show('p_commit')
+		ut.show('p_commit')
 	}
 	hide_buttons() {
 		this.evb.clear()
-		this.u.hide('p_commit')
+		ut.hide('p_commit')
 	}
 	commit() {
 		let form={};
@@ -211,37 +169,25 @@ class PaAPCommit extends Pa {
 			form["passphase"+i]=this.stash.ap[i].passphase
 			form["update"+i]=this.stash.ap[i].update ? 1 : 0
 		}
-		this.u.json('/api/ap/config',form)
+		ut.json('/api/ap/config',form)
 		this.show()
 	}
 	show() {
 		super.show()
-		this.u.hide('p_commit')
+		ut.hide('p_commit')
 		this.cb.apply()
 	}
 }
 
 class PWiFi {
-	constructor(u){
-		this.u=u
+	constructor(){
 		this.stash={
 			ap: []
 		}
-		this.ev=new Events(this.u)
+		this.ev=new Events()
 	}
-	button(m) {
-		const n='btc_wifi'
-		if(m) {
-			this.ev.click(n,()=>{ this.show() })
-			this.u.enable(n)
-		} else {
-			this.u.disable(n)
-			this.ev.clear()
-		}
-	}
-	show() {
+	pages() {
 		const sr={
-			u: this.u,
 			stash: this.stash,
 			reset: ()=>{ this.reset() },
 		}
@@ -252,66 +198,83 @@ class PWiFi {
 			commit: new PaAPCommit(sr),
 		}
 		pa.list.cb={
-			edit:  (n)=>{ pa.info.show(n) },
+			edit:        (n)=>{ pa.info.show(n) },
 			committable: (n)=>{ pa.commit.committable(n) },
 		}
 		pa.info.cb={
-			back:   ( )=>{ pa.list.show() },
-			scan:   (n)=>{ pa.scan.show(n) },
-			apply:  ( )=>{ pa.list.show() },
+			back:        ( )=>{ pa.list.show() },
+			scan:        (n)=>{ pa.scan.show(n) },
+			apply:       ( )=>{ pa.list.show() },
 		}
 		pa.scan.cb={
-			back:  (n   )=>{ pa.info.show(n) },
-			apply: (ssid)=>{ pa.info.apply(ssid) },
+			back:        (n)=>{ pa.info.show(n) },
+			apply:       (s)=>{ pa.info.apply(s) },
 		}
 		pa.commit.cb={
-			cancel: ()=>{ pa.list.load() },
-			apply:  ()=>{ this.button(true) },
+			cancel:      ( )=>{ pa.list.load() },
+			apply:       ( )=>{ this.button(true) },
 		}
-		pa.list.load()
 		this.pa=pa
-
+	}
+	show() {
+		this.pages()
+		this.pa.list.load()
 		this.button(false)
-
 		this.reset()
-		this.u.show('m_wifi')
+		ut.show('m_wifi')
 
-		this.data_pane()
-		setInterval(()=>{ this.data_pane() },10*1000)
 	}
 	hide() {
 		this.reset()
-		this.u.enable('btc_wifi')
-		this.u.hide('w_wifi')
+		ut.enable('btc_wifi')
+		ut.hide('w_wifi')
 	}
 	reset() {
 		for(let i in this.pa) {
 			this.pa[i].hide()
 		}
 	}
-	data_pane() {
-		const av=(id,v)=>{
-			v=v ? v : '---'
-			this.u.id(id).innerHTML=v
+	button(m) {
+		const n='btc_wifi'
+		if(m) {
+			this.ev.click(n,()=>{ this.show() })
+			ut.enable(n)
+		} else {
+			ut.disable(n)
+			this.ev.clear()
 		}
-		this.u.json('/api/ap/info').then((d)=>{
-			av('dp_hostname',d.hostname)
-			av('dp_ap_ssid',d.ap.ssid)
-			av('dp_ap_ip',d.ap.ip)
-			av('dp_sta_ssid',d.sta.ssid)
-			av('dp_sta_ip',d.sta.ip)
-		})
 	}
 }
 
 export default class Index {
-	constructor(w){
-		this.u=new Utils(w)
-		this.wifi=new PWiFi(this.u)
-		this.ev=new Events(this.u)
+	constructor(){
+		this.wifi=new PWiFi()
+		this.ev=new Events()
 	}
 	run() {
+		this.data_pane()
 		this.wifi.button(true)
+	}
+	data_pane() {
+		const iv=()=>{
+			const av=(id,v)=>{
+				v=v ? v : '---'
+				ut.inner(id,v)
+			}
+			ut.json('/api/ap/info').then((d)=>{
+				av('dp_hostname',d.hostname)
+				av('dp_ap_ssid',d.ap.ssid)
+				av('dp_ap_ip',d.ap.ip)
+				av('dp_sta_ssid',d.sta.ssid)
+				av('dp_sta_ip',d.sta.ip)
+			})
+		}
+
+		if(this.data_pane_timer) {
+			clearInterval(this.data_pane_timer)
+		}
+		setInterval(iv,10*1000)
+		iv();
 	}
 }
 
