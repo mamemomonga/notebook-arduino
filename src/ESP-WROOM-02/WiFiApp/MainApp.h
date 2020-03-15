@@ -18,20 +18,19 @@ class MainAppClass {
 	public:
 		MainAppClass();
 		StorageClass storage;
-		void init();
-		void handle();
+		void setup();
+		bool disable_wifi;
+		void handles1();
+		void handles2();
 
 	private:
 		void setup_webserver();
 		void setup_ap();
 		void sta_connect();
-
 		uint8_t sta;
-		uint8_t sta_ct;
-		unsigned long last_millis;
 
-		String tmpString;
 		void hard_reset();
+		String tmpString;
 
 	protected:
 };

@@ -5,20 +5,23 @@ ESP8266WiFiClass softap;
 DNSServer        dnsServer;
 ESP8266WiFiMulti wifiMulti;
 
-MainAppClass::MainAppClass(){}
-
+MainAppClass::MainAppClass(){
+	disable_wifi=false;
+}
 
 void MainAppClass::hard_reset() {
 	Serial.println("[MainApp] HARD RESET!"); 
 	delay(500);
-	// IO0をAVRにつないでハードリセットに使う
-	pinMode(0,OUTPUT);
-	digitalWrite(0,LOW);
+	// 13ピンをRSTにつないでハードリセットに使う
+	pinMode(13,OUTPUT);
+	digitalWrite(13,LOW);
+	// これは正しく動かない
 	ESP.reset();
 }
 
 
-void MainAppClass::init() {
+void MainAppClass::setup() {
+	if(disable_wifi) { return; }
 	Serial.println("[MainApp] Init"); 
 	sta=0;
 
@@ -35,33 +38,19 @@ void MainAppClass::init() {
 	if(storage.load()) {
 		sta=1;
 	}
-	sta_ct=0;
 	tmpString="";
 }
 
-void MainAppClass::handle() {
- 	unsigned long current_millis=millis();
-	// オーバーフロー
-	if(current_millis < last_millis) {
- 		last_millis=current_millis;
-	}
-
+void MainAppClass::handles1() {
+	if(disable_wifi) { return; }
 	dnsServer.processNextRequest();
 	server.handleClient();
 	MDNS.update();
+}
 
-	// 50ms割込
- 	if( ( current_millis - last_millis ) > 50 ) {
-		// LED点滅
- 		if( digitalRead(LED_STATUS) ) { digitalWrite(LED_STATUS,LOW); } else { digitalWrite(LED_STATUS,HIGH); }
-		// 1000ms割込
-		if(sta_ct > 20) {
-			sta_connect();
-			sta_ct=0;
-		}
-		sta_ct++;
- 		last_millis=current_millis;
- 	}
+void MainAppClass::handles2() {
+	if(disable_wifi) { return; }
+	sta_connect();
 }
 
 void MainAppClass::setup_webserver() {

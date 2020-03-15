@@ -1,5 +1,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
+#include <avr/sleep.h>
 
 /*
  ATtiny13A 8PDIP
@@ -17,10 +19,10 @@
 #define BT2_IS_L !( PINB &   BT2 )
 
 // 赤 INT0
-#define BT2       ( 1<<PB1 )
-#define BT2_INPU  { DDRB &=~ BT1; PORTB |= BT1; }
-#define BT2_IS_H  ( PINB &   BT1 )
-#define BT2_IS_L !( PINB &   BT1 )
+#define BT1       ( 1<<PB1 )
+#define BT1_INPU  { DDRB &=~ BT1; PORTB |= BT1; }
+#define BT1_IS_H  ( PINB &   BT1 )
+#define BT1_IS_L !( PINB &   BT1 )
 
 // ESPプログラム用
 // USB-UART DTRピン
@@ -50,15 +52,82 @@
 #define IO0_IS_H  ( PINB &    IO0 )
 #define IO0_IS_L !( PINB &    IO0 )
 
+void do_stop();
+void do_start();
+void do_program();
+void do_power_toggle();
+void init();
+void loop();
+int main(void);
+
 uint8_t running=0;
 uint8_t program=0;
 uint8_t dtr_detect=0;
+
+int main(void) {
+	init();
+    for(;;){
+		loop();
+    }
+    return 0;
+}
+
+void init() {
+	EN_OUT;
+	DTR_IN;
+	BT1_INPU;
+	BT2_INPU;
+	IO0_INPU;
+
+	// INT0割り込み無効
+	GIMSK &=~ INT0;
+
+	// DTRがHならDTR検出モード
+	if(DTR_IS_H) {
+		dtr_detect=1;
+	}
+
+	do_start();
+}
+
+void loop() {
+	// ボタン1
+	if(BT1_IS_L) {
+		// プログラム直後はリセット
+		if(program) {
+			do_start();
+		// 電源オンのときはオフ
+		} else if (running) {
+			do_power_toggle();
+		}
+	}
+	// ボタン2
+	if(BT2_IS_L) {
+	}
+
+	// 動作中
+	if(running) {
+		// IO0がLになってHになったらリセット
+		if(IO0_IS_L) {
+			do_stop();
+			while(IO0_IS_L) {
+				_delay_ms(1);
+			}
+			do_start();
+		}
+	}
+	// DTRがLになったらプログラムモード
+	if(dtr_detect) {
+		if(DTR_IS_L) {
+			do_program();
+		}
+	}
+}
 
 void do_stop() {
 	running=0;
 	program=0;
 	EN_L;
-	_delay_ms(1000);
 	IO0_INPU;
 }
 
@@ -87,59 +156,27 @@ void do_program() {
 	IO0_INPU;
 }
 
-int main(void) {
+void do_power_toggle() {
+	do_stop();
+	_delay_ms(1000);
 
-	EN_OUT;
-	DTR_IN;
-	BT1_INPU;
-	BT2_INPU;
-	IO0_INPU;
+	// Deep Sleep
+	// INT0割り込みを有効
+	GIMSK |= (1<<INT0);
+
+	// INT0 がLowで割り込み
+	MCUCR &=~ (1<<ISC01);
+	MCUCR &=~ (1<<ISC00);
+
+	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+	sei();
+	sleep_enable();
+	sleep_cpu();
 
 	// INT0割り込み無効
-	GIMSK &=~ INT0;
+	GIMSK &=~ (1<<INT0);
 
-	do_stop();
-
-	// DTRがHならDTR検出モード
-	if(DTR_IS_H) {
-		dtr_detect=1;
-	}
-
-    for(;;){
-		// ボタン1
-		if(BT1_IS_L) {
-			// プログラム直後はリセット
-			if(program) {
-				do_start();
-			// 電源オンのときはオフ
-			} else if (running) {
-				do_stop();
-			// 電源オフのときはオン
-			} else {
-				do_start();
-			}
-		}
-		// ボタン2
-		if(BT2_IS_L) {
-		}
-
-		// 動作中
-		if(running) {
-			// IO0がLになってHになったらリセット
-			if(IO0_IS_L) {
-				do_stop();
-				while(IO0_IS_L) {
-					_delay_ms(1);
-				}
-				do_start();
-			}
-		}
-		// DTRがLになったらプログラムモード
-		if(dtr_detect) {
-			if(DTR_IS_L) {
-				do_program();
-			}
-		}
-    }
-    return 0;
+	do_start();
 }
+
+
