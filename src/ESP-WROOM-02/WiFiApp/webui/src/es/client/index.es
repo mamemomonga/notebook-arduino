@@ -307,18 +307,8 @@ class PWiFi {
 export default class Index {
 	constructor(w){
 		this.u=new Utils(w)
-		this.m_wifi=new PWiFi(this.u)
+		this.wifi=new PWiFi(this.u)
 		this.ev=new Events(this.u)
-		this.current='main'
-		this.buttons={
-			main:   [ 'btc_main',   ()=>{} ],
-			wifi:   [ 'btc_wifi',   ()=>{ this.m_wifi.show() } ],
-			config: [ 'btc_config', ()=>{} ],
-		}
-		for(let i in this.buttons) {
-			this.ev.click(this.buttons[i][0],()=>{ this.buttons[i][1]() })
-		}
-
 	}
 	run() {
 		this.wifi.button(true)
