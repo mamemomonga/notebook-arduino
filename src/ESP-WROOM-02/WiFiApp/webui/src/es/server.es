@@ -16,6 +16,22 @@ app.get('/api/page', (req, res)=>{
 	res.send('{ "error": 0,"page": "index" }')
 })
 
+app.get('/api/ap/info',(req,res)=>{
+	const data={
+		error: 0,
+		hostname: 'localhost',
+		ap: {
+			ip: '192.168.4.1',
+			ssid: 'APSSID'
+		},
+		sta: {
+			ip: '192.168.1.100',
+			ssid: 'STASSID',
+		}
+	}
+	res.send(JSON.stringify(data))
+})
+
 app.get('/api/ap/list', (req, res)=>{
 	console.log(req.body)
 	const data={
@@ -39,11 +55,11 @@ app.get('/api/ap/scan', (req, res)=>{
 	const data={
 		error: 0,
 		data: [
-			{ ssid: "SSID1", channel: "1", rssi: "-60" },
-			{ ssid: "SSID2", channel: "2", rssi: "-60" },
-			{ ssid: "SSID3", channel: "3", rssi: "-60" },
+			{ ssid: "SSID1", channel: "1", rssi: "-30" },
+			{ ssid: "SSID2", channel: "2", rssi: "-40" },
+			{ ssid: "SSID3", channel: "3", rssi: "-50" },
 			{ ssid: "SSID4", channel: "4", rssi: "-60" },
-			{ ssid: "SSID5", channel: "5", rssi: "-60" },
+			{ ssid: "SSID5", channel: "5", rssi: "-70" },
 		]
 	};
 	setTimeout(()=>{
@@ -60,7 +76,6 @@ app.post('/api/ap/reset', (req, res)=>{
 	console.log(req.body)
 	res.send('{ "error": 0 }')
 })
-
 
 console.log(`Listening on ${serve_port}`)
 app.listen(serve_port)

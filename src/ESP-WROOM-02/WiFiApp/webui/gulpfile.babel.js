@@ -11,9 +11,12 @@ import ejs            from 'gulp-ejs'
 import fs             from 'fs'
 import rename         from 'gulp-rename'
 import rimraf         from 'rimraf'
+import { spawn }      from 'child_process'
 
 const DEVELOPMENT = process.env.NODE_ENV === 'development'
 if(DEVELOPMENT) { log.info("DEVELOPMENT MODE") }
+
+let serverp
 
 // ------------------------
 // tasks
@@ -54,26 +57,51 @@ gulp.task('ejs',()=>{
 
 gulp.task('htmlmin',()=>{
 	return gulp.src('./var/work/index.html')
-	.pipe(htmlmin({collapseWhitespace: true}))
+	.pipe(htmlmin({
+		collapseWhitespace: true,
+		removeComments: true,
+	}))
 	.pipe(gulp.dest('./var/work/min'))
 })
 
-const do_copy=()=>{
-	if(DEVELOPMENT) {
-		return gulp.series(
-			()=>{ return gulp.src('./var/work/server.js'          ).pipe(gulp.dest('./var/build'))        },
-			()=>{ return gulp.src('./var/work/index.{js,css,html}').pipe(gulp.dest('./var/build/public')) },
-		)
-	} else {
-		return gulp.series(
-			()=>{ return gulp.src('./var/work/server.js'     ).pipe(gulp.dest('./var/build'))        },
-			()=>{ return gulp.src('./var/work/min/index.html').pipe(gulp.dest('./var/build/public')) },
-		)
-	}
-}
+gulp.task('copy:production',gulp.series(
+	()=>{ return gulp.src('./var/work/server.js'     ).pipe(gulp.dest('./var/build'))        },
+	()=>{ return gulp.src('./var/work/min/index.html').pipe(gulp.dest('./var/build/public')) },
+))
 
-gulp.task('build',gulp.series('es:server','es:client','sass','ejs','htmlmin',do_copy()))
-gulp.task('default',gulp.series('build'))
+gulp.task('copy:development',gulp.series(
+	()=>{ return gulp.src('./var/work/server.js'          ).pipe(gulp.dest('./var/build'))        },
+	()=>{ return gulp.src('./var/work/index.{js,css,html}').pipe(gulp.dest('./var/build/public')) },
+))
+
+gulp.task('serve',(cb)=>{
+	if(serverp) serverp.kill()
+	serverp = spawn('node',['var/build/server.js'], {stdio: 'inherit'})
+	serverp.on('close',(code)=>{
+		if(code==0) {
+			log("エラーを検出し停止しました")
+		}
+	})
+	cb()
+})
+gulp.task('build',gulp.series(
+	'es:server',
+	'es:client',
+	'sass',
+	'ejs',
+	'htmlmin',
+	( DEVELOPMENT ? 'copy:development' : 'copy:production' )
+))
+
+gulp.task('watch',()=>{
+	gulp.watch('./src/**',gulp.series('build','serve'))
+})
+
+gulp.task('default',gulp.series('build',gulp.parallel('watch','serve')))
+
+process.on('exit',()=>{
+	if(serverp) serverp.kill()
+})
 
 // ------------------------
 // WebPack
