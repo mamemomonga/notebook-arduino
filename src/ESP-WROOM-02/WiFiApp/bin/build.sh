@@ -2,6 +2,62 @@
 set -eu
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 CURDIR=$(pwd)
+COMMANDS="sketch spiffs write-sketch write-spiffs serial all"
+
+do_sketch() {
+	echo -e $'\e[7m Build Sketch \e[0m'
+	cd "$BASEDIR/.."
+	arduino-cli compile --fqbn $AR_FQBN_WOPT $BASEDIR
+	cd $CURDIR
+}
+
+do_spiffs() {
+	echo -e $'\e[7m Build SPIFFS \e[0m'
+	echo "  SPIFFS_PAGESIZE:  $SPIFFS_PAGESIZE"
+	echo "  SPIFFS_BLOCKSIZE: $SPIFFS_BLOCKSIZE"
+	echo "  SPIFFS_END:       $SPIFFS_END"
+	echo "  SPIFFS_START:     $SPIFFS_START"
+
+	mkdir -p $BASEDIR/var/spiffs
+	cp $BASEDIR/webui/var/build/public/index.html $BASEDIR/var/spiffs
+	$MKSPIFFS \
+		-p $SPIFFS_PAGESIZE \
+		-b $SPIFFS_BLOCKSIZE \
+		-s $(($SPIFFS_END - $SPIFFS_START)) \
+		-d 5 -c $BASEDIR/var/spiffs/ $SPIFFS_FILE
+	set +x
+}
+
+do_write-sketch() {
+	echo -e $'\e[7m Write Sketch \e[0m'
+	echo "  プログラムモードにしてください"
+	cd "$BASEDIR/.."
+	arduino-cli upload -p $AR_PORT --fqbn $AR_FQBN_WOPT $BASEDIR
+	cd $CURDIR
+}
+
+do_write-spiffs() {
+	echo -e $'\e[7m Write SPIFFS \e[0m'
+	echo "  プログラムモードにしてください"
+	PYTHONPATH="$PYSERIAL" $PYTHON3 $ESPTOOL \
+		--baud 921600 \
+		--port $AR_PORT \
+		write_flash $SPIFFS_START $SPIFFS_FILE -u
+}
+
+do_serial() {
+	screen $AR_PORT 115200
+}
+
+do_all() {
+	do_sketch
+	do_spiffs
+	do_write-sketch
+	do_write-spiffs
+	echo "  リセットしてください"
+	sleep 5
+	do_serial
+}
 
 # ---------------------------------------------------
 
@@ -29,48 +85,24 @@ eval $( cat $AR_DATA/packages/esp8266/hardware/esp8266/2.6.3/boards.txt \
 	| grep -e '^generic.menu.eesz.'$AR_EESZ'.build.spiffs' \
 	| perl -nlpE 's#(?:.+)\.spiffs_(.+)=#export SPIFFS_\U$1=#g' )
 
-echo "  SPIFFS_PAGESIZE:  $SPIFFS_PAGESIZE"
-echo "  SPIFFS_BLOCKSIZE: $SPIFFS_BLOCKSIZE"
-echo "  SPIFFS_END:       $SPIFFS_END"
-echo "  SPIFFS_START:     $SPIFFS_START"
 
 # ---------------------------------------------------
 
-echo
-echo "*** コンパイル ***"
-cd "$BASEDIR/.."
-arduino-cli compile --fqbn $AR_FQBN_WOPT $BASEDIR
-cd $CURDIR
+run() {
 
-echo
-echo "*** SPIFFS ビルド ***"
-mkdir -p $BASEDIR/var/spiffs
-cp $BASEDIR/webui/var/build/public/index.html $BASEDIR/var/spiffs
+    for i in $COMMANDS; do
+    if [ "$i" == "${1:-}" ]; then
+        shift
+        do_$i $@
+        exit 0
+    fi
+    done
+    echo "USAGE: $( basename $0 ) COMMAND"
+    echo "COMMANDS:"
+    for i in $COMMANDS; do
+    echo "   $i"
+    done
+    exit 1
+}
 
-set -x
-$MKSPIFFS \
-	-p $SPIFFS_PAGESIZE \
-	-b $SPIFFS_BLOCKSIZE \
-	-s $(($SPIFFS_END - $SPIFFS_START)) \
-	-d 5 -c $BASEDIR/var/spiffs/ $SPIFFS_FILE
-set +x
-
-echo
-echo "*** スケッチアップロード ***"
-echo "  プログラムモードにしてください"
-cd "$BASEDIR/.."
-arduino-cli upload -p $AR_PORT --fqbn $AR_FQBN_WOPT $BASEDIR
-cd $CURDIR
-
-echo
-echo "*** SPIFFS アップロード ***"
-echo "  プログラムモードにしてください"
-PYTHONPATH="$PYSERIAL" $PYTHON3 $ESPTOOL \
-	--baud 921600 \
-	--port $(cat ../serial_port) \
-	write_flash $SPIFFS_START $SPIFFS_FILE -u
-
-echo
-echo "*** シリアル接続開始 ***"
-screen $AR_PORT 115200
-
+run $@
