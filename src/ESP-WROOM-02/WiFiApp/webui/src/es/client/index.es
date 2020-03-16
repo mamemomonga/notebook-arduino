@@ -30,7 +30,7 @@ class PaAPList extends PLayer2 {
 		return this
 	}
 	render() {
-		let html='<tr><td>番号</td><td>SSID</td><td>　</td></tr>';
+		let html='<tr><th>番号</th><th style="min-width:200px">SSID</th><th>　</th></tr>';
 		let update=false;
 		for(let i in this.stash.ap) {
 			const v=this.stash.ap[i]
@@ -115,7 +115,7 @@ class PaAPScan extends PLayer2 {
 		return this
 	}
 	render() {
-		let html='<tr><td>SSID</td><td>Ch.</td><td>RSSI</td><td></td></tr>';
+		let html='<tr><th>SSID</th><th>Ch.</th><th>RSSI</th><th>　</th></tr>';
 		this.d.sort((a,b)=>{ return b.rssi - a.rssi })
 		for(let i in this.d) {
 			const v=this.d[i]

@@ -1,9 +1,18 @@
 // vim:ft=css
 
 body {
-	font-size: 16px;
+	font-size: 1rem;
 	font-family: sans-serif;
 }
+
+.container {
+	width: -20px;
+	margin: 10px auto;
+	padding: 20px 20px;
+	border: 1px solid #DDDDDD;
+	border-radius: 0px;
+}
+
 
 button {
 	display: inline-block;
@@ -50,16 +59,8 @@ button:active {
 	transform: translateY(2px);
 }
 
-.container {
-	width: 1000px;
-	margin: 10px auto;
-	padding: 20px 20px;
-	border: 1px solid #DDDDDD;
-	border-radius: 0px;
-}
-
 .panel_top {
-	width: 968px;
+	width: -20px;
 	clear:both;
 	padding: 10px;
 	margin: 5px;
@@ -78,7 +79,7 @@ button:active {
 	border: 1px solid #AAAAAA;
 	float: left;
 	padding: 10px;
-	margin: 5px;
+	margin: 10px 10px 10px 5px;
 }
 
 .panel_left h1 {
@@ -93,6 +94,7 @@ button:active {
 .panel_left button {
 	width: 100%;
 }
+
 .panel_left .commit {
 	background-color: #FFEEEE;
 	margin: 10px 0 10px 0;
@@ -111,15 +113,26 @@ button:active {
 	text-align: center;
 }
 .panel_center {
-	width: 730px;
-	float: right;
-	padding: 10px;
+	width: -20px;
 	margin: 5px;
 }
 
+.panel_center h1 {
+	font-size: 1.5rem;
+	margin: 5px;
+	padding: 5px;
+	text-align: center;
+}
+
+.panel_center h2 {
+	font-size: 1.1rem;
+	margin: 5px;
+	padding: 5px;
+}
+
 .panel_bottom {
-	width: 968px;
-	clear:both;
+	width: -20px;
+	clear: both;
 	padding: 10px;
 	margin: 5px;
 	border: 1px solid #AAAAAA;
@@ -177,6 +190,7 @@ table th {
 table td {
 	border: 1px solid #DDDDDD;
 	padding: 5px 20px;
+	text-align: center;
 }
 
 #m_wifi {

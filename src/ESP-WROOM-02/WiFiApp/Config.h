@@ -2,8 +2,8 @@
 #define _CONFIG_H_
 
 // 初期セットアップ時に使用するWiFi情報
-#define WIFISETUP_SSID       "WROOM-SETUP5"
-#define WIFISETUP_HOSTNAME   "wroom-setup5"
+#define WIFISETUP_SSID       "ESP-DEVICE-1"
+#define WIFISETUP_HOSTNAME   "esp-device-1"
 #define WIFISETUP_IPADDRESS  192,168,4,1
 
 // パスフェーズは8文字以上必要
