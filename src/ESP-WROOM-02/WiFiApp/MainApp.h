@@ -6,13 +6,14 @@
 #include "Arduino.h"
 #include "Config.h"
 #include "Storage.h"
-#include "WebData.h"
+// #include "WebData.h"
 
 #include <ESP8266WiFiMulti.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <WiFiClient.h>
 #include <DNSServer.h>
+#include <FS.h>
 
 class MainAppClass {
 	public:
@@ -28,6 +29,7 @@ class MainAppClass {
 		void setup_ap();
 		void sta_connect();
 		uint8_t sta;
+		void spiffs_ls();
 
 		void hard_reset();
 		String tmpString;

@@ -1,23 +1,22 @@
 // vim:ft=javascript
 import Utils from './utils.es'
-import { Events, PLayer1, PLayer2 } from './pages.es'
+import { Events, PLayer1 } from './pages.es'
 import PagesWifi from './pages_wifi.es'
 
-const ut=new Utils(window)
-
 class PagesMain extends PLayer1 {
-	constructor(){
-		super()
+	constructor(ba){
+		super(ba)
 		this.id='m_index'
 	}
 }
 
 class RootPage {
-	constructor() {
-		this.ev=new Events()
+	constructor(ba) {
+		this.ba=ba;
+		this.ev=new Events(ba)
 		this.pa={
-			'main':  { page: new PagesMain(), btn: 'btc_main' },
-			'wifi':  { page: new PagesWifi(), btn: 'btc_wifi' },
+			'main':  { page: new PagesMain(ba), btn: 'btc_main' },
+			'wifi':  { page: new PagesWifi(ba), btn: 'btc_wifi' },
 		}
 //		for(let i in this.pa) {
 //			this.pa[i].page.leave=()=>{ this.enable_all() }
@@ -33,7 +32,7 @@ class RootPage {
 	disable_all() {
 		this.ev.clear()
 		for(let i in this.pa) {
-			ut.disable(this.pa[i].btn)
+			this.ba.disable(this.pa[i].btn)
 		}
 		return this
 	}
@@ -46,7 +45,7 @@ class RootPage {
 	enable(name) {
 		console.log('ENABLE',name)
 		const p=this.pa[name]
-		ut.enable(p.btn)
+		this.ba.enable(p.btn)
 		this.ev.click(p.btn,()=>{ this.change(name) })
 		return this
 	}
@@ -54,26 +53,33 @@ class RootPage {
 
 export default class Index {
 	constructor(){
-		this.rp=new RootPage()
+		this.ba=new Utils(window)
+		this.rp=new RootPage(this.ba)
 	}
-
 	run() {
 		this.rp.change('main').enable_all()
 		this.data_pane()
 	}
-
 	data_pane() {
 		const iv=()=>{
 			const av=(id,v)=>{
 				v=v ? v : '---'
-				ut.inner(id,v)
+				this.ba.inner(id,v)
 			}
-			ut.json('/api/ap/info').then((d)=>{
-				av('dp_hostname',d.hostname)
+			this.ba.json('/api/ap/info').then((d)=>{
+				const hn='<a href="http://'+d.hostname+'.local/">'+d.hostname+'</a>'
+				const apip='<a href="http://'+d.ap.ip+'/">'+d.ap.ip+'</a>'
+				const staip=( d.sta.ip == '0.0.0.0' ) ? '---' : d.sta.ip
+				av('dp_hostname',hn)
 				av('dp_ap_ssid',d.ap.ssid)
-				av('dp_ap_ip',d.ap.ip)
+				av('dp_ap_ip',apip)
 				av('dp_sta_ssid',d.sta.ssid)
-				av('dp_sta_ip',d.sta.ip)
+				av('dp_sta_ip',staip)
+				this.ba.stash.wifi={
+					hostname: d.hostname,
+					ap:       d.ap,
+					sta:      d.sta,
+				}
 			})
 		}
 

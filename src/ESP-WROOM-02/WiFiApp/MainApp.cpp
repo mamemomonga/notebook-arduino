@@ -19,7 +19,6 @@ void MainAppClass::hard_reset() {
 	ESP.reset();
 }
 
-
 void MainAppClass::setup() {
 	if(disable_wifi) { return; }
 	Serial.println("[MainApp] Init"); 
@@ -53,12 +52,34 @@ void MainAppClass::handles2() {
 	sta_connect();
 }
 
+void MainAppClass::spiffs_ls() {
+	Serial.println("SPIFFS LS");
+	char cwdName[2];
+	strcpy(cwdName,"/");
+	Dir dir=SPIFFS.openDir(cwdName);
+	while(dir.next()) {
+		String fn, fs;
+		fn = dir.fileName();
+		fn.remove(0, 1);
+		fs = String(dir.fileSize());
+		Serial.println("<" + fn + "> size=" + fs);
+	}
+}
+
+
 void MainAppClass::setup_webserver() {
+
+	Serial.println(F("[WebServer] ----------------------------"));
+	SPIFFS.begin();
+	spiffs_ls();
 
 	// ----
 	server.on("/",[&](){
 		Serial.println(F("[WebServer] Serve /"));
-		server.send(200, "text/html",WebDataWiFiSetupIndex());
+		// server.send(200, "text/html",WebDataWiFiSetupIndex());
+		File file = SPIFFS.open("/index.html", "r");
+		server.streamFile(file, "text/html");
+		file.close();
 	});
 
 	// ----

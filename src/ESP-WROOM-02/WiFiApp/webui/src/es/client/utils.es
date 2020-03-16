@@ -4,6 +4,7 @@ export default class Utils {
 	constructor(w){
 		this.w=w
 		this.d=this.w.document
+		this.stash={}
 	}
 	id(target) {
 		return this.d.getElementById(target)
@@ -27,7 +28,6 @@ export default class Utils {
 	inner(id,h) {
 		return h ? (this.id(id).innerHTML=h) : h;
 	}
-
 	json(url,data){
 		return new Promise((resolve,reject)=>{
 			const request = new XMLHttpRequest();

@@ -1,18 +1,18 @@
 // vim:ft=javascript
 import Utils from './utils.es'
-const ut=new Utils(window)
 
 export class Events {
-	constructor(){
+	constructor(ba){
+		this.ba=ba
 		this.events=[]
 	}
 	click(id,li) {
-		ut.id(id).addEventListener('click',li);
+		this.ba.id(id).addEventListener('click',li);
 		this.events.push([id,'click',li]);
 		return this
 	}
 	_rh(e) {
-		ut.id(e[0]).removeEventListener(e[1],e[2])
+		this.ba.id(e[0]).removeEventListener(e[1],e[2])
 	}
 	renove(id,ev) {
 		for(let i in this.events) {
@@ -28,8 +28,9 @@ export class Events {
 }
 
 export class PLayer1 {
-	constructor(p){
-		this.ev=new Events()
+	constructor(ba){
+		this.ba=ba
+		this.ev=new Events(ba)
 		this.cb={
 			leave: ()=>{}
 		}
@@ -37,12 +38,12 @@ export class PLayer1 {
 	show() {
 		this.reset()
 		this.pages_start()
-		ut.show(this.id)
+		this.ba.show(this.id)
 
 	}
 	hide() {
 		this.reset()
-		ut.hide(this.id)
+		this.ba.hide(this.id)
 		this.cb.leave()
 	}
 	reset() {
@@ -55,20 +56,20 @@ export class PLayer1 {
 }
 
 export class PLayer2 {
-	constructor(p){
-		this.stash=p.stash
-		this.reset=()=>{ p.reset(); return this }
-		this.ev=new Events()
+	constructor(ba){
+		this.ba=ba
+		this.reset=()=>{ this.cb.reset(); return this }
+		this.ev=new Events(ba)
 	}
 	show(n) {
 		this.number=n
 		this.reset().render().events()
-		ut.show(this.ids[0])
+		this.ba.show(this.ids[0])
 		return this
 	}
 	hide() {
 		for(let i in this.ids) {
-			ut.hide(this.ids[i])
+			this.ba.hide(this.ids[i])
 		}
 		this.ev.clear()
 	}
