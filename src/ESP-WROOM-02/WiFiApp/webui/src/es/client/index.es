@@ -1,10 +1,10 @@
 // vim:ft=javascript
 import Utils from './utils.es'
-import { Events, Pages } from './pages.es'
+import { Events, PLayer1, PLayer2 } from './pages.es'
 
 const ut=new Utils(window)
 
-class PaAPList extends Pages {
+class PaAPList extends PLayer2 {
 	constructor(p){
 		super(p)
 		this.ids=['d_ap_list'];
@@ -47,7 +47,7 @@ class PaAPList extends Pages {
 	}
 }
 
-class PaAPInfo extends Pages {
+class PaAPInfo extends PLayer2 {
 	constructor(p){
 		super(p)
 		this.ids=['d_ap_info']
@@ -81,7 +81,7 @@ class PaAPInfo extends Pages {
 		return this
 	}
 }
-class PaAPScan extends Pages {
+class PaAPScan extends PLayer2 {
 	constructor(p){
 		super(p)
 		this.ids=['d_ap_scan','d_ap_scan_now']
@@ -139,7 +139,7 @@ class PaAPScan extends Pages {
 	}
 }
 
-class PaAPCommit extends Pages {
+class PaAPCommit extends PLayer2 {
 	constructor(p){
 		super(p)
 		this.ids=['d_ap_commit']
@@ -179,14 +179,13 @@ class PaAPCommit extends Pages {
 	}
 }
 
-class PWiFi {
+class PagesWiFi extends PLayer1 {
 	constructor(){
+		super()
+		this.id='m_wifi'
 		this.stash={
 			ap: []
 		}
-		this.ev=new Events()
-	}
-	pages() {
 		const sr={
 			stash: this.stash,
 			reset: ()=>{ this.reset() },
@@ -212,49 +211,73 @@ class PWiFi {
 		}
 		pa.commit.cb={
 			cancel:      ( )=>{ pa.list.load() },
-			apply:       ( )=>{ this.button(true) },
+			apply:       ( )=>{ this.buttons_enable_all() },
 		}
 		this.pa=pa
 	}
-	show() {
-		this.pages()
-		this.pa.list.load()
-		this.button(false)
-		this.reset()
-		ut.show('m_wifi')
-
-	}
 	hide() {
-		this.reset()
-		ut.enable('btc_wifi')
-		ut.hide('w_wifi')
+		super.hide()
+		this.pa.commit.committable(false)
 	}
-	reset() {
+	pages_start() {
+		this.pa.list.load()
+	}
+}
+
+class PagesMain extends PLayer1 {
+	constructor(){
+		super()
+		this.id='m_index'
+	}
+}
+
+class RootPage {
+	constructor() {
+		this.ev=new Events()
+		this.pa={
+			'main':  { page: new PagesMain(), btn: 'btc_main' },
+			'wifi':  { page: new PagesWiFi(), btn: 'btc_wifi' },
+		}
+	}
+	change(name) {
 		for(let i in this.pa) {
-			this.pa[i].hide()
+			this.pa[i].page.hide()
 		}
+		this.pa[name].page.show()
+		return this
 	}
-	button(m) {
-		const n='btc_wifi'
-		if(m) {
-			this.ev.click(n,()=>{ this.show() })
-			ut.enable(n)
-		} else {
-			ut.disable(n)
-			this.ev.clear()
+	disable_all() {
+		this.ev.clear()
+		for(let i in this.pa) {
+			ut.disable(this.pa[i].btn)
 		}
+		return this
+	}
+	enable_all() {
+		for(let i in this.pa) {
+			this.enable(i)
+		}
+		return this
+	}
+	enable(name) {
+		console.log('ENABLE',name)
+		const p=this.pa[name]
+		ut.enable(p.btn)
+		this.ev.click(p.btn,()=>{ this.change(name) })
+		return this
 	}
 }
 
 export default class Index {
 	constructor(){
-		this.wifi=new PWiFi()
-		this.ev=new Events()
+		this.rp=new RootPage()
 	}
+
 	run() {
+		this.rp.change('main').enable_all()
 		this.data_pane()
-		this.wifi.button(true)
 	}
+
 	data_pane() {
 		const iv=()=>{
 			const av=(id,v)=>{

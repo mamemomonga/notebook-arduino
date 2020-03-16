@@ -7,22 +7,53 @@ export class Events {
 		this.events=[]
 	}
 	click(id,li) {
-		const el=ut.id(id);
-		el.addEventListener('click',li);
-		this.events.push([el,'click',li]);
+		ut.id(id).addEventListener('click',li);
+		this.events.push([id,'click',li]);
 		return this
 	}
-	clear() {
+	_rh(e) {
+		ut.id(e[0]).removeEventListener(e[1],e[2])
+	}
+	renove(id,ev) {
 		for(let i in this.events) {
 			const e=this.events[i];
-			e[0].removeEventListener(e[1],e[2])
+			if((e[0] == id) && (e[1] == ev)) { this._rh(e) }
 		}
+	}
+	clear() {
+		for(let i in this.events) { this._rh(this.events[i]) }
 		this.events=[]
 		return this
 	}
 }
 
-export class Pages {
+export class PLayer1 {
+	constructor(p){
+		this.ev=new Events()
+		this.cb={
+			leave: ()=>{}
+		}
+	}
+	show() {
+		this.reset()
+		this.pages_start()
+		ut.show(this.id)
+
+	}
+	hide() {
+		this.reset()
+		ut.hide(this.id)
+		this.cb.leave()
+	}
+	reset() {
+		for(let i in this.pa) {
+			this.pa[i].hide()
+		}
+	}
+	pages_start() {}
+}
+
+export class PLayer2 {
 	constructor(p){
 		this.stash=p.stash
 		this.reset=()=>{ p.reset(); return this }
