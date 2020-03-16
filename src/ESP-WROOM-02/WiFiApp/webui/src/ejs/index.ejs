@@ -34,8 +34,14 @@
 <div class="commit" id="p_commit">
 <p>適用ボタンを押すまで<br>反映されません</p>
 <button id="b_commit" class="bt_red">適用</button>
-<button id="b_cancel">キャンセル</button>
+<hr>
 </div>
+
+<button class="bt_blue" id="btc_main"   disabled>メインメニュー</button>
+<button class="bt_blue" id="btc_wifi"   disabled>WiFi設定</button>
+<button class="bt_blue" id="btc_config" disabled>動作設定</button>
+
+<hr>
 
 <h1>ホスト名</h1>
 <p><span id="dp_hostname">---</span></p>
@@ -52,12 +58,6 @@
 <h1>STA IP</h1>
 <p><span id="dp_sta_ip">---</span></p>
 
-<hr>
-
-<button class="bt_blue" id="btc_main"   disabled>メインメニュー</button>
-<button class="bt_blue" id="btc_wifi"   disabled>無線LAN子機設定</button>
-<button class="bt_blue" id="btc_config" disabled>動作設定</button>
-<button class="bt_brown">リセット</button>
 
 </div>
 
@@ -65,50 +65,71 @@
 <!-- 中央 -->
 <!-- ------------------------------------------------------------------------- -->
 <div class="panel_center">
+<div class="panel_center_inner">
 
 <div id="m_index">
 <p>毎度ありがとうございます</p>
 </div><!-- /m_index -->
 
 <div id="m_wifi">
-<h1>無線LAN子機設定</h1>
+<h1>WiFi設定</h1>
 
-<div id="d_ap_list">
-<h2>アクセスポイントの設定</h2>
-<table id="t_ap_list"></table>
-</div><!-- /d_ap_list -->
+<hr>
 
-<div id="d_ap_info">
-<h2>アクセスポイントの設定 → <span id="s_ap_info_num"></span></h2>
+<div id="d_sta_list">
+
+<h2>WiFi親機の設定</h2>
+
 <table>
 <tr><th>SSID</td>
-<td style="text-align:left"><input type="text" id="t_ap_info_ssid" size="32" maxlength="64"></td></tr>
+<td style="text-align:left"><input type="text" id="t_ap_ssid" size="32" maxlength="64"></td></tr>
 <tr><th>パスフレーズ</td>
-<td style="text-align:left"><input type="text" id="t_ap_info_passphase" size="64" maxlength="64"></td></tr>
+<td style="text-align:left"><input type="text" id="t_ap_passphase" size="64" maxlength="64"></td></tr>
 </table>
-<button id="b_ap_info_back">戻る</button>
-<button id="b_ap_info_scan" class="bt_green">スキャン</button>
-<button id="b_ap_info_commit" class="bt_blue">設定</button>
 
-</div><!-- /d_ap_info -->
+<button id="b_sta_commit" class="bt_blue">設定</button>
 
-<div id="d_ap_scan_now">
-<p><blink>ただいまスキャン中！</blink></p>
-</div><!-- /d_ap_scan_now -->
+<hr>
+<h2>WiFi子機の設定</h2>
+<h3>親機情報</h3>
+<table id="t_sta_list"></table>
+</div><!-- /d_sta_list -->
 
-<div id="d_ap_scan">
-<h2>アクセスポイントの設定 → <span id="s_ap_scan_num"></span></h2>
+<div id="d_sta_info">
+<h2>WiFi子機の設定</h2>
+<h3>アクセスポイントの設定 → <span id="s_sta_info_num"></span></h3>
+<table>
+<tr><th>SSID</td>
+<td style="text-align:left"><input type="text" id="t_sta_info_ssid" size="32" maxlength="64"></td></tr>
+<tr><th>パスフレーズ</td>
+<td style="text-align:left"><input type="text" id="t_sta_info_passphase" size="64" maxlength="64"></td></tr>
+</table>
+<button id="b_sta_info_back">戻る</button>
+<button id="b_sta_info_scan" class="bt_green">スキャン</button>
+<button id="b_sta_info_commit" class="bt_blue">設定</button>
+
+</div><!-- /d_sta_info -->
+
+<div id="d_sta_scan_now">
+<h2>WiFi子機の設定</h2>
+<p>ただいまスキャン中！</p>
+</div><!-- /d_sta_scan_now -->
+
+<div id="d_sta_scan">
+<h2>WiFi子機の設定</h2>
+<h3>アクセスポイントの設定 → <span id="s_sta_scan_num"></span></h3>
 <p>電波の強い順番です</p>
-<table id="t_ap_scan"></table>
-<button id="b_ap_scan_back">戻る</button>
-</div><!-- /d_ap_scan -->
+<table id="t_sta_scan"></table>
+<button id="b_sta_scan_back">戻る</button>
+</div><!-- /d_sta_scan -->
 
-<div id="d_ap_commit">
+<div id="d_sta_commit">
 <p>設定完了</p>
-</div><!-- /d_ap_commit -->
+</div><!-- /d_sta_commit -->
 
 </div><!-- /m_wifi -->
-</div><!-- /中央 -->
+</div><!-- /panel_center_inner -->
+</div><!-- /panel_center -->
 
 <!-- ------------------------------------------------------------------------- -->
 <!-- 中央 -->

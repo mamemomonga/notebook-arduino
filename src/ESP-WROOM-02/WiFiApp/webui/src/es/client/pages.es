@@ -50,6 +50,7 @@ export class PLayer1 {
 			this.pa[i].hide()
 		}
 	}
+	leave() {}
 	pages_start() {}
 }
 

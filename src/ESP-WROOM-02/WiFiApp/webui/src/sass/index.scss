@@ -64,7 +64,6 @@ button:active {
 	clear:both;
 	padding: 10px;
 	margin: 5px;
-	border: 1px solid #AAAAAA;
 }
 
 .panel_top h1 {
@@ -78,8 +77,8 @@ button:active {
 	width: 200px;
 	border: 1px solid #AAAAAA;
 	float: left;
-	padding: 10px;
-	margin: 10px 10px 10px 5px;
+	padding: 5px;
+	margin: 0 5px 10px 5px;
 }
 
 .panel_left h1 {
@@ -113,8 +112,12 @@ button:active {
 	text-align: center;
 }
 .panel_center {
-	width: -20px;
-	margin: 5px;
+	margin: 5px 5px 5px 222px;
+	padding: 10px;
+	text-align: center;
+}
+.panel_center table {
+	width: 100%;
 }
 
 .panel_center h1 {
@@ -135,7 +138,6 @@ button:active {
 	clear: both;
 	padding: 10px;
 	margin: 5px;
-	border: 1px solid #AAAAAA;
 	text-align: right;
 }
 .panel_bottom small {
@@ -184,7 +186,7 @@ table {
 table th {
 	border: 1px solid #DDDDDD;
 	background-color:#EEEEEE;
-	padding: 5px 20px;
+	padding: 10px 20px;
 }
 
 table td {
@@ -197,11 +199,11 @@ table td {
 	display:none;
 }
 
-#d_ap_scan_now {
-	animation: d_ap_scan_now_a 0.2s infinite alternate;
+#d_sta_scan_now p {
+	animation: d_sta_scan_now_a 0.2s infinite alternate;
 
 }
-@keyframes d_ap_scan_now_a{
+@keyframes d_sta_scan_now_a{
    0% { color: #FFFFFF }
  100% { color: #000000 }
 }
