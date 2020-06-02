@@ -54,6 +54,9 @@ configの作成
 
 再起動または再ログインが必要
 
+# ボードごとの利用例
 
-# [Arduino UNOでの利用](./UNO.md)
-# [ESP-WROOM-02 モジュールでの利用](./ESP-WROOM-02.md)
+* [Arduino UNOでの利用](./UNO.md)
+* [ESP-WROOM-02 モジュールでの利用](./ESP-WROOM-02.md)
+
+
