@@ -57,6 +57,7 @@ configの作成
 # ボードごとの利用例
 
 * [Arduino UNOでの利用](./UNO.md)
+* [Arduino Everyでの利用](./Every.md)
 * [ESP-WROOM-02 モジュールでの利用](./ESP-WROOM-02.md)
 
 
