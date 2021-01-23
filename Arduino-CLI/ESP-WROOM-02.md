@@ -24,7 +24,12 @@ IO15  | Low           | Pull Down(Not Care?)
 
 ## 設定
 
-$HOME/.arduino15/arduino-cli.yaml の board_manager の項目に書き加える
+以下 の board_manager の項目に書き加える
+
+* Linux: $HOME/.arduino15/arduino-cli.yaml 
+* MacOS: $HOME/Library/Arduino15/arduino-cli.yaml
+
+arduino-cli.yaml
 
 	$ vim $HOME/.arduino15/arduino-cli.yaml
 	board_manager:

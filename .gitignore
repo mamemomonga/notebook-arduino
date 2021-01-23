@@ -1,3 +1,4 @@
 *.swp
 ._*
 build-*/
+.vscode/
