@@ -5,6 +5,13 @@
 * [Arduino CLI Documentation](https://arduino.github.io/arduino-cli/)
 * [Welcome to ESP8266 Arduino Core’s documentation!](https://arduino-esp8266.readthedocs.io/en/latest/)
 
+# ボードごとの利用例
+
+* [Arduino UNOでの利用](./UNO.md)
+* [Arduino Everyでの利用](./Every.md)
+* [Arduino Pro互換](./ProMini.md)
+* [ESP-WROOM-02 モジュールでの利用](./ESP-WROOM-02.md)
+
 # セットアップ
 
 ## Homebrew
@@ -53,11 +60,5 @@ configの作成
 	$ sudo usermod -aG dialout $USER
 
 再起動または再ログインが必要
-
-# ボードごとの利用例
-
-* [Arduino UNOでの利用](./UNO.md)
-* [Arduino Everyでの利用](./Every.md)
-* [ESP-WROOM-02 モジュールでの利用](./ESP-WROOM-02.md)
 
 
