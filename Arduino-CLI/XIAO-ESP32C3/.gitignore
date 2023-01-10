@@ -1,0 +1,5 @@
+/.vscode
+/build
+/app/debug_custom.json
+/app/debug.cfg
+/app/esp32c3.svd
