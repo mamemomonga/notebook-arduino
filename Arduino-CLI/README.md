@@ -51,13 +51,17 @@ ESP8266系、ESP-WROOM-02など
 ### [ESP32](https://github.com/espressif/arduino-esp32)
 ESP32系
 
+* 2023/09/10: drazzy.com がダウンしておりmegaTinyCoreのインストールできないので、一時的にGitHubを指定している。
+
 インストール
 
 	sh -eux << 'EOS'
 	arduino-cli config add board_manager.additional_urls 'https://mcudude.github.io/MiniCore/package_MCUdude_MiniCore_index.json'
 	arduino-cli config add board_manager.additional_urls 'https://mcudude.github.io/MegaCoreX/package_MCUdude_MegaCoreX_index.json'
-	arduino-cli config add board_manager.additional_urls 'http://drazzy.com/package_drazzy.com_index.json'
+	# arduino-cli config add board_manager.additional_urls 'http://drazzy.com/package_drazzy.com_index.json'
+	arduino-cli config add board_manager.additional_urls 'https://raw.githubusercontent.com/SpenceKonde/ReleaseScripts/master/package_drazzy.com_index.json'
 	arduino-cli config add board_manager.additional_urls 'https://arduino.esp8266.com/stable/package_esp8266com_index.json'
+	arduino-cli config add board_manager.additional_urls 'https://espressif.github.io/arduino-esp32/package_esp32_index.json'
 	arduino-cli core search
 	arduino-cli core install arduino:avr
 	arduino-cli core install arduino:megaavr
@@ -65,6 +69,7 @@ ESP32系
 	arduino-cli core install MegaCoreX:megaavr
 	arduino-cli core install megaTinyCore:megaavr
 	arduino-cli core install esp8266:esp8266
+	arduino-cli core install esp32:esp32
 	arduino-cli board list
 	arduino-cli board listall
 	EOS
