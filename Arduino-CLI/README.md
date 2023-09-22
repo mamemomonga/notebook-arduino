@@ -67,6 +67,7 @@ CH32V003系
 	arduino-cli config add board_manager.additional_urls 'https://arduino.esp8266.com/stable/package_esp8266com_index.json'
 	arduino-cli config add board_manager.additional_urls 'https://espressif.github.io/arduino-esp32/package_esp32_index.json'
 	arduino-cli config add board_manager.additional_urls 'https://alexandermandera.github.io/arduino-wch32v003/package_ch32v003_index.json'
+	arduino-cli core update-index
 	arduino-cli core search
 	arduino-cli core install arduino:avr
 	arduino-cli core install arduino:megaavr
@@ -80,12 +81,6 @@ CH32V003系
 	arduino-cli board listall
 	EOS
 
-ESP32(aarch64非対応)
-
-	arduino-cli config add board_manager.additional_urls 'https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json'
-	arduino-cli core update-index
-	arduino-cli core install esp32:esp32
-	
 ## (Linux) 一般ユーザでのアップロードでPermission Deniedの場合
 
 ### シリアルデバイス
